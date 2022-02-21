@@ -4,7 +4,8 @@
     {
         public const string ConfigFileNameDefault = "S2Lobby.exe.config";
 
-        public const string ConfigFileName = "lobby.config";
+        //public const string ConfigFileName = "lobby.config";
+        public const string ConfigFileName = "config.xml";
 
         public const string LoggerFileDefault = "lobby_log.txt";
 
