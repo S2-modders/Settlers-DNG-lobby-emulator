@@ -75,7 +75,7 @@ namespace S2Library.Protocol
             UnknownType068 = 68,
             UnknownType069 = 69,
             UnknownType070 = 70,
-            UnknownType071 = 71,
+            RequestCreateAccount = 71, // UnknownType071
             SelectNickname = 72, // UnknownType072
             UnknownType073 = 73,
             UnknownType074 = 74,
@@ -303,7 +303,7 @@ namespace S2Library.Protocol
             PayloadTypes.Add(typeof(Payload68), Types.UnknownType068);
             PayloadTypes.Add(typeof(Payload69), Types.UnknownType069);
             PayloadTypes.Add(typeof(Payload70), Types.UnknownType070);
-            PayloadTypes.Add(typeof(Payload71), Types.UnknownType071);
+            PayloadTypes.Add(typeof(RequestCreateAccount), Types.RequestCreateAccount); // Payload71
             PayloadTypes.Add(typeof(SelectNickname), Types.SelectNickname); // Payload72
             PayloadTypes.Add(typeof(Payload73), Types.UnknownType073);
             PayloadTypes.Add(typeof(Payload74), Types.UnknownType074);
@@ -2250,7 +2250,7 @@ namespace S2Library.Protocol
 //    (**(code**)(* piVar1 + 8))("patchlevel",8);
 //    (**(code**)(* piVar1 + 8))("ticket_id",8);
 //    (**(code**)(* unaff_EDI + 4))(0x47,piVar1);
-    public class Payload71 : PayloadPrefix
+    public class RequestCreateAccount : PayloadPrefix
     {
         public string Nick;
         public string Password;
