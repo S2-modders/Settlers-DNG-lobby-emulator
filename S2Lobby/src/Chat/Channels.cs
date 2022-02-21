@@ -14,11 +14,11 @@ namespace S2Lobby
 
             string connectionString =
             "Server=" + Config.Get("database/mysql/ip") + ";" +
-           "Port=" + Config.Get("database/mysql/port") + ";" +
-           "Database=" + Config.Get("database/mysql/name") + ";" +
-           "User ID=" + Config.Get("database/mysql/user") + ";" +
-           "Password=" + Config.Get("database/mysql/pass") + ";" +
-           "Pooling=true";
+            "Port=" + Config.Get("database/mysql/port") + ";" +
+            "Database=" + Config.Get("database/mysql/name") + ";" +
+            "User ID=" + Config.Get("database/mysql/user") + ";" +
+            "Password=" + Config.Get("database/mysql/pass") + ";" +
+            "Pooling=true; charset=latin1;";
             try
             {
                 MySqlConnection mysql = new MySqlConnection(connectionString);
@@ -29,13 +29,13 @@ namespace S2Lobby
                 StringBuilder cmd = new StringBuilder();
                 cmd.AppendLine("CREATE TABLE IF NOT EXISTS channels (");
                 cmd.AppendLine("    channel_id          INTEGER PRIMARY KEY AUTO_INCREMENT");
-                cmd.AppendLine(",   channel_name        VARCHAR(127) NOT NULL");
+                cmd.AppendLine(",   channel_name        VARCHAR(100) NOT NULL");
                 cmd.AppendLine(",   channel_subject     VARCHAR(255)");
-                cmd.AppendLine(",   channel_creator     VARCHAR(127) NOT NULL");
+                cmd.AppendLine(",   channel_creator     VARCHAR(100) NOT NULL");
                 cmd.AppendLine(",   creator_id          INTEGER NOT NULL");
-                cmd.AppendLine(",   channel_protected   INTEGER NOT NULL DEFAULT(0)");
-                cmd.AppendLine(",   channel_password    VARCHAR(127)");
-                cmd.AppendLine(",   channel_hidden      INTEGER NOT NULL DEFAULT(0)");
+                cmd.AppendLine(",   channel_protected   INTEGER NOT NULL");
+                cmd.AppendLine(",   channel_password    VARCHAR(100)");
+                cmd.AppendLine(",   channel_hidden      INTEGER NOT NULL");
                 cmd.AppendLine(");");
 
                 MySqlCommand command = mysql.CreateCommand();
@@ -62,9 +62,11 @@ namespace S2Lobby
 
                 Logger.Log($"[Channel database ready]");
             }
-            catch
+            catch (System.Exception e)
             {
                 Logger.Log($"[Failed to access channel database]");
+                Logger.Log(e.Message);
+
                 System.Environment.Exit(1);
             }
         }
