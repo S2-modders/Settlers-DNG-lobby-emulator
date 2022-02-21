@@ -506,7 +506,8 @@ namespace S2Library.Protocol
         public ushort Type1;
         public ushort Type2;
 
-        public const ushort PayloadMagic = 0x26B6;
+        //public const ushort PayloadMagic = 0x26B6;
+        public const ushort PayloadMagic = 0x27D8;
 
         public virtual void Serialize(Serializer serializer, bool fullHeader = true)
         {
