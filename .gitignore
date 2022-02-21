@@ -1,3 +1,9 @@
+.directory
+
+msgdefs.ini
+notes.md
+config.xml
+
 *.rsuser
 *.suo
 *.user
@@ -5,6 +11,7 @@
 *.sln.docstates
 
 *.userprefs
+*.idea
 
 mono_crash.*
 
