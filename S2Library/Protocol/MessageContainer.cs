@@ -1,4 +1,4 @@
-﻿namespace S2Library.Protocol
+namespace S2Library.Protocol
 {
     public class MessageContainer
     {
