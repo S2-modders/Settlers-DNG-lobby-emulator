@@ -45,8 +45,11 @@ namespace S2Lobby
         {
             try {
                 if(File.Exists(Constants.ConfigFileName)) {
+                    Logger.Log("[Using configuration file: "+Constants.ConfigFileName + "]");
+                    
                     XmlDocument doc = new XmlDocument();
                     doc.Load(Constants.ConfigFileName);
+                    
                     ParseSection(doc.DocumentElement.ChildNodes);
                 }
                 else if (!(File.Exists(Constants.ConfigFileNameDefault))) {
