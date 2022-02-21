@@ -5,35 +5,41 @@ namespace S2Lobby
 {
     public class Accounts
     {
+        private MySqlConnection conn;
+
         public void Init(Program program)
         {
-            string connectionString =
-            "Server=" + Config.Get("database/mysql/ip") + ";" +
-           "Port=" + Config.Get("database/mysql/port") + ";" +
-           "Database=" + Config.Get("database/mysql/name") + ";" +
-           "User ID=" + Config.Get("database/mysql/user") + ";" +
-           "Password=" + Config.Get("database/mysql/pass") + ";" +
-           "Pooling=true";
-            try
-            {
-                MySqlConnection mysql = new MySqlConnection(connectionString);
-                mysql.Open();
 
-                MySqlTransaction transaction = mysql.BeginTransaction();
+            string server = Config.Get("database/mysql/ip");
+            string database = Config.Get("database/mysql/name");
+            string user = Config.Get("database/mysql/user");
+            string password = Config.Get("database/mysql/pass");
+            string port = Config.Get("database/mysql/port");
+            string sslM = "none";
+
+            string connString = string.Format("server={0};port={1};user id={2}; password={3}; database={4}; SslMode={5}; charset=latin1; Pooling=true;", server, port, user, password, database, sslM);
+
+            conn = new MySqlConnection(connString);
+
+            try
+            {    
+                conn.Open();
+
+                MySqlTransaction transaction = conn.BeginTransaction();
 
                 StringBuilder cmd = new StringBuilder();
                 cmd.AppendLine("CREATE TABLE IF NOT EXISTS accounts (");
                 cmd.AppendLine("    account_id          INTEGER PRIMARY KEY AUTO_INCREMENT");
-                cmd.AppendLine(",   user_name           VARCHAR(127) NOT NULL");
-                cmd.AppendLine(",   user_name_upper     VARCHAR(127) NOT NULL");
+                cmd.AppendLine(",   user_name           VARCHAR(100) NOT NULL");
+                cmd.AppendLine(",   user_name_upper     VARCHAR(100) NOT NULL");
                 cmd.AppendLine(",   user_password       BLOB NOT NULL");
                 cmd.AppendLine(",   user_cdkey          BLOB NOT NULL");
                 cmd.AppendLine(",   user_email          VARCHAR(255)");
                 cmd.AppendLine(",   user_data           BLOB");
-                cmd.AppendLine(",   player_nickname     VARCHAR(127)");
+                cmd.AppendLine(",   player_nickname     VARCHAR(100)");
                 cmd.AppendLine(");");
 
-                MySqlCommand command = mysql.CreateCommand();
+                MySqlCommand command = conn.CreateCommand();
                 command.CommandText = cmd.ToString();
                 command.Transaction = transaction;
 
@@ -44,14 +50,16 @@ namespace S2Lobby
                 command.Dispose();
                 transaction.Dispose();
 
-                mysql.Close();
-                mysql.Dispose();
+                conn.Close();
+                conn.Dispose();
 
                 Logger.Log($"[Account database ready]");
-            }
-            catch {
+            } catch (System.Exception e)
+            {
                 Logger.Log($"[Failed to access account database]");
-                Logger.Log(connectionString);
+                Logger.Log(connString);
+                Logger.Log(e.Message);
+
                 System.Environment.Exit(1);
             }
         }
