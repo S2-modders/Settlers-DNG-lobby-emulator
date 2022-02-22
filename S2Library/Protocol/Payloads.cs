@@ -4244,7 +4244,7 @@ namespace S2Library.Protocol
 //    (**(code**)(* piVar1 + 4))("data",1,0);
 //    (**(code**)(* piVar1 + 8))("ticket_id",8);
 //    (**(code**)(* unaff_EDI + 4))(0xa8,piVar1);
-    public class RegisterServer : PayloadPrefix // Payload168
+    public class RegisterServerOld : PayloadPrefix // Payload168 # AddGameServer
     {
         public string Name;
         public string Description;
@@ -4297,13 +4297,55 @@ namespace S2Library.Protocol
         }
     }
 
+    public class RegisterServer : PayloadPrefix // Payload168 # AddGameServer
+    {
+        // TODO: this is just guessed
+        public string Name;
+        public string Description; // (?)
+        public uint Port;
+        
+        public uint Unknown1;
+        public byte Unknown11;
+        
+        public uint Unknown2;
+        public byte Unknown21;
+        
+        public uint Unknown3;
+        public byte Unknown31;
+
+        public string Map;
+        
+        public uint Unknown4;
+        public byte Unknown41;
+
+        public uint TicketId;
+
+        public override void Serialize(Serializer serializer, bool fullHeader = true)
+        {
+            base.Serialize(serializer, fullHeader);
+            serializer.Serialize(nameof(Name), ref Name);
+            serializer.Serialize(nameof(Description), ref Description);
+            serializer.Serialize(nameof(Port), ref Port);
+            serializer.Serialize(nameof(Unknown1), ref Unknown1);
+            serializer.Serialize(nameof(Unknown11), ref Unknown11);
+            serializer.Serialize(nameof(Unknown2), ref Unknown2);
+            serializer.Serialize(nameof(Unknown21), ref Unknown21);
+            serializer.Serialize(nameof(Unknown3), ref Unknown3);
+            serializer.Serialize(nameof(Unknown31), ref Unknown31);
+            serializer.Serialize(nameof(Map), ref Map);
+            serializer.Serialize(nameof(Unknown4), ref Unknown4);
+            serializer.Serialize(nameof(Unknown41), ref Unknown41);
+            serializer.Serialize(nameof(TicketId), ref TicketId);
+        }
+    }
+    
 //    (**(code**)(* piVar1 + 0x14))();
 //    (**(code**)(* piVar1 + 8))("type",6);
 //    (**(code**)(* piVar1 + 8))("server_id",8);
 //    (**(code**)(* piVar1 + 8))("running",0xe);
 //    (**(code**)(* piVar1 + 8))("ticket_id",8);
 //    (**(code**)(* unaff_EDI + 4))(0xa9,piVar1);
-    public class UnlistServer : PayloadPrefix // Payload169
+    public class UnlistServer : PayloadPrefix // Payload169 # RemoveServer
     {
         public uint ServerId;
         public bool Running;
@@ -4556,7 +4598,7 @@ namespace S2Library.Protocol
 //    (**(code**)(* piVar1 + 8))("property_mask",8);
 //    (**(code**)(* piVar1 + 8))("ticket_id",8);
 //    (**(code**)(* unaff_EDI + 4))(0xb1,piVar1);
-    public class UpdateServerInfo : PayloadPrefix // Payload177
+    public class UpdateServerInfoOld : PayloadPrefix // Payload177 # ChangeGameServer
     {
         public string Name;
         public string Description;
@@ -4597,6 +4639,51 @@ namespace S2Library.Protocol
         }
     }
 
+    public class UpdateServerInfo : PayloadPrefix // Payload177 # ChangeGameServer
+    {
+        // TODO
+        public uint ServerId;
+        public string Name;
+
+        public uint Unknown2;
+        public byte Unknown21;
+
+        public byte PlayersTotal;
+        public byte PlayersJoined;
+        
+        public byte Unknown31;
+        public byte Unknown32;
+        public byte Unknown33;
+        
+        public string Map;
+        
+        public uint Unknown4;
+        public byte Unknown41;
+
+        public uint Unknown5;
+        
+        public uint TicketId;
+
+        public override void Serialize(Serializer serializer, bool fullHeader = true)
+        {
+            base.Serialize(serializer, fullHeader);
+            serializer.Serialize(nameof(ServerId), ref ServerId);
+            serializer.Serialize(nameof(Name), ref Name);
+            serializer.Serialize(nameof(Unknown2), ref Unknown2);
+            serializer.Serialize(nameof(Unknown21), ref Unknown21);
+            serializer.Serialize(nameof(PlayersTotal), ref PlayersTotal);
+            serializer.Serialize(nameof(PlayersJoined), ref PlayersJoined);
+            serializer.Serialize(nameof(Unknown31), ref Unknown31);
+            serializer.Serialize(nameof(Unknown32), ref Unknown32);
+            serializer.Serialize(nameof(Unknown33), ref Unknown33);
+            serializer.Serialize(nameof(Map), ref Map);
+            serializer.Serialize(nameof(Unknown4), ref Unknown4);
+            serializer.Serialize(nameof(Unknown41), ref Unknown41);
+            serializer.Serialize(nameof(Unknown5), ref Unknown5);
+            serializer.Serialize(nameof(TicketId), ref TicketId);
+        }
+    }
+    
 //    (**(code**)(* piVar1 + 0x14))();
 //    (**(code**)(* piVar1 + 8))("type",6);
 //    (**(code**)(* piVar1 + 8))("patchlevel",8);

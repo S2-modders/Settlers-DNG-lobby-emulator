@@ -90,6 +90,9 @@ namespace S2Lobby
                 case Payloads.Types.UpdateServerInfo:
                     HandleUpdateServerInfo((UpdateServerInfo)payload, writer);
                     return true;
+                case Payloads.Types.UnlistServer:
+                    HandleUnlistServer((UnlistServer) payload, writer);
+                    return true;
                 case Payloads.Types.PlayerJoinedServer:
                     HandlePlayerJoinedServer((PlayerJoinedServer)payload, writer);
                     return true;
@@ -336,6 +339,14 @@ namespace S2Lobby
 
         private void HandleRegisterServer(RegisterServer payload, PayloadWriter writer)
         {
+            // TODO
+            var resultPayload = Payloads.CreateStatusOkMsg(payload.TicketId);
+            SendReply(writer, resultPayload);
+            
+            Logger.Log($"User {Account.UserName} created a new lobby as {payload.Name}");
+        }
+        private void HandleRegisterServerOld(RegisterServer payload, PayloadWriter writer)
+        {
             string name = payload.Name;
 
             uint serverId = Program.Servers.Register(name);
@@ -364,6 +375,7 @@ namespace S2Lobby
                 return;
             }
 
+            /*
             _server.ConnectionId = Connection;
             _server.OwnerId = Account.Id;
             _server.Description = payload.Description;
@@ -389,7 +401,7 @@ namespace S2Lobby
                 _server.NeedsPassword = true;
                 _server.Password = password;
             }
-
+            */
             SendServerUpdates();
 
             StatusWithId resultPayload2 = Payloads.CreatePayload<StatusWithId>();
@@ -537,6 +549,13 @@ namespace S2Lobby
 
         private void HandleUpdateServerInfo(UpdateServerInfo payload, PayloadWriter writer)
         {
+            // TODO
+            SendReply(writer, Payloads.CreateStatusOkMsg(payload.TicketId));
+            
+            Logger.Log($"Server {payload.Name} got updated by {Account.UserName}");
+        }
+        private void HandleUpdateServerInfoOld(UpdateServerInfo payload, PayloadWriter writer)
+        {
             if (_server == null)
             {
                 ResultStatusMsg resultPayload1 = Payloads.CreatePayload<ResultStatusMsg>();
@@ -547,6 +566,7 @@ namespace S2Lobby
                 return;
             }
 
+            /*
             _server.Name = payload.Name;
             _server.Description = payload.Description;
             _server.MaxPlayers = payload.MaxPlayers;
@@ -572,6 +592,7 @@ namespace S2Lobby
                 _server.NeedsPassword = true;
                 _server.Password = password;
             }
+            */
 
             SendServerUpdates();
 
@@ -605,6 +626,12 @@ namespace S2Lobby
             SendServerUpdates();
         }
 
+        private void HandleUnlistServer(UnlistServer payload, PayloadWriter writer)
+        {
+            // TODO: notify all clients(?) that the server is not listed anymore
+            SendReply(writer, Payloads.CreateStatusOkMsg(payload.TicketId));
+        }
+        
         private void SendServerUpdates()
         {
             ServerInfo serverInfo = CreateServerInfoPayload(_server, 0);
