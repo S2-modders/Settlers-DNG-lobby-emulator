@@ -53,7 +53,13 @@ namespace S2Lobby
             }
         }
 
+        private void _LogError(string text)
+        {
+            this._Log("## Error: "+text);
+        }
+        
         public static void Log(string text) => Logger.Instance._Log(text);
+        public static void LogError(string text) => Logger.Instance._LogError(text);
         public static void LogDebug(string text) => Logger.Instance._LogDebug(text);
     }
 }
