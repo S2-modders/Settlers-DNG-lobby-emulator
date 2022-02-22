@@ -1,6 +1,6 @@
 .directory
 
-msgdefs.ini
+msgdefs*.ini
 notes.md
 config.xml
 
