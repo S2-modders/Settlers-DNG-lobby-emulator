@@ -1,6 +1,6 @@
 ﻿using System.IO;
 using System.Text;
-
+using System.Xml.Schema;
 using S2Library.Protocol;
 
 namespace S2Lobby
@@ -107,20 +107,27 @@ namespace S2Lobby
             switch (payloadType)
             {
                 case Payloads.Types.VersionCheck:
-                    HandleVersionCheck((VersionCheck)payload, writer);
+                    HandleVersionCheck((VersionCheck) payload, writer);
                     return true;
                 case Payloads.Types.Login:
-                    HandleLogin((Login)payload, writer);
+                    HandleLogin((Login) payload, writer);
                     return true;
                 case Payloads.Types.RegisterUser:
-                    HandleRegisterUser((RegisterUser)payload, writer);
+                    HandleRegisterUser((RegisterUser) payload, writer);
                     return true;
                 case Payloads.Types.LoginUser:
-                    HandleLoginUser((LoginUser)payload, writer);
+                    HandleLoginUser((LoginUser) payload, writer);
                     return true;
                 case Payloads.Types.LoginServer:
-                    HandleLoginServer((LoginServer)payload, writer);
+                    HandleLoginServer((LoginServer) payload, writer);
                     return true;
+                case Payloads.Types.RequestLogin:
+                    HandleRequestLogin((RequestLogin) payload, writer);
+                    return true;
+                case Payloads.Types.RequestCreateAccount:
+                    HandleCreateAccount((RequestCreateAccount) payload, writer);
+                    return true;
+                
                 default:
                     return false;
             }
@@ -143,13 +150,34 @@ namespace S2Lobby
 
         private void HandleVersionCheck(VersionCheck payload, PayloadWriter writer)
         {
-            StatusMsg resultPayload = Payloads.CreatePayload<StatusMsg>();
+            ResultStatusMsg resultPayload = Payloads.CreatePayload<ResultStatusMsg>();
             resultPayload.Errorcode = 0;
             resultPayload.Errormsg = null;
             resultPayload.TicketId = payload.TicketId;
             SendReply(writer, resultPayload);
         }
 
+        private void HandleRequestLogin(RequestLogin payload, PayloadWriter writer)
+        {
+            Account = Program.Accounts.Get(Database.Connection, payload.Nick);
+            if (Account == null)
+            {
+                SendReply(writer, Payloads.CreateStatusFailMsg("Account not found", payload.TicketId));
+                return;
+            }
+
+            byte[] password = Encoding.ASCII.GetBytes(payload.Password);
+            if (!Serializer.CompareArrays(password, Account.Password))
+            {
+                SendReply(writer, Payloads.CreateStatusFailMsg("Wrong password", payload.TicketId));
+                return;
+            }
+            
+            SendReply(writer, Payloads.CreateStatusOkMsg(payload.TicketId));
+            
+            Logger.Log($"User {Account.UserName} logged in");
+        }
+        
         private void HandleLogin(Login payload, PayloadWriter writer)
         {
             byte[] loginKey = payload.Key;
@@ -163,6 +191,31 @@ namespace S2Lobby
             SendReply(writer, resultPayload);
         }
 
+        private void HandleCreateAccount(RequestCreateAccount payload, PayloadWriter writer)
+        {
+            byte[] password = Encoding.ASCII.GetBytes(payload.Password);
+            // TODO: cdKey is broken, FIXME
+            byte[] cdKey = Encoding.ASCII.GetBytes(payload.CdKey);
+
+            uint res = Program.Accounts.Create(Database.Connection, payload.Nick, password, cdKey);
+            if (res == 0)
+            {
+                SendReply(writer, Payloads.CreateStatusFailMsg("Username already in use", payload.TicketId));
+                return;
+            }
+            
+            Account = Program.Accounts.Get(Database.Connection, payload.Nick);
+            if (Account == null)
+            {
+                SendReply(writer, Payloads.CreateStatusFailMsg("Account not created", payload.TicketId));
+                return;
+            }
+            
+            SendReply(writer, Payloads.CreateStatusOkMsg(payload.TicketId));
+            
+            Logger.Log($"User {Account.UserName} has registered");
+        }
+        
         private void HandleRegisterUser(RegisterUser payload, PayloadWriter writer)
         {
             byte[] loginCipher = payload.Cipher;
@@ -218,7 +271,7 @@ namespace S2Lobby
 
             if (invalid)
             {
-                StatusMsg resultPayload1 = Payloads.CreatePayload<StatusMsg>();
+                ResultStatusMsg resultPayload1 = Payloads.CreatePayload<ResultStatusMsg>();
                 resultPayload1.Errorcode = 3;
                 resultPayload1.Errormsg = "Encryption failure";
                 resultPayload1.TicketId = payload.TicketId;
@@ -232,7 +285,7 @@ namespace S2Lobby
             uint id = Program.Accounts.Create(Database.Connection, name, password, cdKey);
             if (id == 0)
             {
-                StatusMsg resultPayload1 = Payloads.CreatePayload<StatusMsg>();
+                ResultStatusMsg resultPayload1 = Payloads.CreatePayload<ResultStatusMsg>();
                 resultPayload1.Errorcode = 1;
                 resultPayload1.Errormsg = "Username already in use";
                 resultPayload1.TicketId = payload.TicketId;
@@ -243,7 +296,7 @@ namespace S2Lobby
             Account = Program.Accounts.Get(Database.Connection, name);
             if (Account == null)
             {
-                StatusMsg resultPayload1 = Payloads.CreatePayload<StatusMsg>();
+                ResultStatusMsg resultPayload1 = Payloads.CreatePayload<ResultStatusMsg>();
                 resultPayload1.Errorcode = 1;
                 resultPayload1.Errormsg = "Account not created";
                 resultPayload1.TicketId = payload.TicketId;
@@ -302,7 +355,7 @@ namespace S2Lobby
 
             if (invalid)
             {
-                StatusMsg resultPayload1 = Payloads.CreatePayload<StatusMsg>();
+                ResultStatusMsg resultPayload1 = Payloads.CreatePayload<ResultStatusMsg>();
                 resultPayload1.Errorcode = 3;
                 resultPayload1.Errormsg = "Encryption failure";
                 resultPayload1.TicketId = payload.TicketId;
@@ -316,7 +369,7 @@ namespace S2Lobby
             Account = Program.Accounts.Get(Database.Connection, name);
             if (Account == null)
             {
-                StatusMsg resultPayload1 = Payloads.CreatePayload<StatusMsg>();
+                ResultStatusMsg resultPayload1 = Payloads.CreatePayload<ResultStatusMsg>();
                 resultPayload1.Errorcode = 1;
                 resultPayload1.Errormsg = "Account not found";
                 resultPayload1.TicketId = payload.TicketId;
@@ -326,7 +379,7 @@ namespace S2Lobby
 
             if (!Serializer.CompareArrays(password, Account.Password))
             {
-                StatusMsg resultPayload1 = Payloads.CreatePayload<StatusMsg>();
+                ResultStatusMsg resultPayload1 = Payloads.CreatePayload<ResultStatusMsg>();
                 resultPayload1.Errorcode = 1;
                 resultPayload1.Errormsg = "Wrong password";
                 resultPayload1.TicketId = payload.TicketId;
@@ -385,7 +438,7 @@ namespace S2Lobby
 
             if (invalid)
             {
-                StatusMsg resultPayload1 = Payloads.CreatePayload<StatusMsg>();
+                ResultStatusMsg resultPayload1 = Payloads.CreatePayload<ResultStatusMsg>();
                 resultPayload1.Errorcode = 3;
                 resultPayload1.Errormsg = "Encryption failure";
                 resultPayload1.TicketId = payload.TicketId;
@@ -399,7 +452,7 @@ namespace S2Lobby
             Account = Program.Accounts.Get(Database.Connection, name);
             if (Account == null)
             {
-                StatusMsg resultPayload1 = Payloads.CreatePayload<StatusMsg>();
+                ResultStatusMsg resultPayload1 = Payloads.CreatePayload<ResultStatusMsg>();
                 resultPayload1.Errorcode = 1;
                 resultPayload1.Errormsg = "Account not found";
                 resultPayload1.TicketId = payload.TicketId;
@@ -409,7 +462,7 @@ namespace S2Lobby
 
             if (!Serializer.CompareArrays(password, Account.Password))
             {
-                StatusMsg resultPayload1 = Payloads.CreatePayload<StatusMsg>();
+                ResultStatusMsg resultPayload1 = Payloads.CreatePayload<ResultStatusMsg>();
                 resultPayload1.Errorcode = 1;
                 resultPayload1.Errormsg = "Wrong password";
                 resultPayload1.TicketId = payload.TicketId;
