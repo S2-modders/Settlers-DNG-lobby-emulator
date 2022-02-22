@@ -48,8 +48,8 @@ namespace S2Lobby
                 case Payloads.Types.GetCDKeys:
                     HandleGetCdKeys((GetCDKeys)payload, writer);
                     return true;
-                case Payloads.Types.GetWelcomeMsg:
-                    HandleGetWelcomeMsg((GetWelcomeMsg)payload, writer);
+                case Payloads.Types.RequestMOTD:
+                    HandleGetMOTD((RequestMOTD)payload, writer);
                     return true;
                 case Payloads.Types.GetUserInfo:
                     HandleGetUserInfo((GetUserInfo)payload, writer);
@@ -75,8 +75,20 @@ namespace S2Lobby
                 case Payloads.Types.UnknownType056:
                     HandlePayload056((Payload56)payload, writer);
                     return true;
+                case Payloads.Types.RegObserverGlobalChat:
+                    HandleRegObserverGlobalChat((RegObserverGlobalChat)payload, writer);
+                    return true;
+                case Payloads.Types.RegObserverUserLogin:
+                    HandleRegObserverUserLogin((RegObserverUserLogin)payload, writer);
+                    return true;
+                case Payloads.Types.DeregObserverUserLogin:
+                    HandleDeregObserverUserLogin((DeregObserverUserLogin)payload, writer);
+                    return true;
                 case Payloads.Types.UnknownType157:
                     HandlePayload157((Payload157)payload, writer);
+                    return true;
+                case Payloads.Types.DeregObserverGlobalChat:
+                    HandleDeregObserverGlobalChat((DeregObserverGlobalChat)payload, writer);
                     return true;
                 case Payloads.Types.ConnectToServer:
                     HandleConnectToServer((ConnectToServer)payload, writer);
@@ -90,7 +102,9 @@ namespace S2Lobby
                 case Payloads.Types.PlayerLeftServer:
                     HandlePlayerLeftServer((PlayerLeftServer)payload, writer);
                     return true;
+                
                 default:
+                    Logger.LogError($"{payloadType} not implemented!");
                     return false;
             }
         }
@@ -127,7 +141,7 @@ namespace S2Lobby
             uint accountId = payload.UserId;
             if (accountId != Account.Id)
             {
-                StatusMsg resultPayload1 = Payloads.CreatePayload<StatusMsg>();
+                ResultStatusMsg resultPayload1 = Payloads.CreatePayload<ResultStatusMsg>();
                 resultPayload1.Errorcode = 1;
                 resultPayload1.Errormsg = "Incorrect account";
                 resultPayload1.TicketId = payload.TicketId;
@@ -149,7 +163,7 @@ namespace S2Lobby
                 Account.UserData = nicknameData;
             }
 
-            StatusMsg resultPayload2 = Payloads.CreatePayload<StatusMsg>();
+            ResultStatusMsg resultPayload2 = Payloads.CreatePayload<ResultStatusMsg>();
             resultPayload2.Errorcode = 0;
             resultPayload2.Errormsg = null;
             resultPayload2.TicketId = payload.TicketId;
@@ -161,7 +175,7 @@ namespace S2Lobby
             uint accountId = payload.UserId;
             if (accountId != Account.Id)
             {
-                StatusMsg resultPayload1 = Payloads.CreatePayload<StatusMsg>();
+                ResultStatusMsg resultPayload1 = Payloads.CreatePayload<ResultStatusMsg>();
                 resultPayload1.Errorcode = 1;
                 resultPayload1.Errormsg = "Incorrect account";
                 resultPayload1.TicketId = payload.TicketId;
@@ -176,17 +190,20 @@ namespace S2Lobby
             resultPayload2.TicketId = payload.TicketId;
             SendReply(writer, resultPayload2);
 
-            StatusMsg resultPayload3 = Payloads.CreatePayload<StatusMsg>();
+            ResultStatusMsg resultPayload3 = Payloads.CreatePayload<ResultStatusMsg>();
             resultPayload3.Errorcode = 0;
             resultPayload3.Errormsg = null;
             resultPayload3.TicketId = payload.TicketId;
             SendReply(writer, resultPayload3);
         }
 
-        private void HandleGetWelcomeMsg(GetWelcomeMsg payload, PayloadWriter writer)
+        private void HandleGetMOTD(RequestMOTD payload, PayloadWriter writer)
         {
-            SendWelcomeMsg resultPayload = Payloads.CreatePayload<SendWelcomeMsg>();
-            resultPayload.Txt = $"Welcome to Sacred 2, {Account.PlayerName}";
+            SendMOTD resultPayload = Payloads.CreatePayload<SendMOTD>();
+            
+            // I need to get rid of the last char, since that breaks the MOTD for some reason
+            string name = Account.UserName.Substring(0, Account.UserName.Length - 1);
+            resultPayload.Txt = Constants.MOTD.Replace("%name%", name);
             resultPayload.TicketId = payload.TicketId;
             SendReply(writer, resultPayload);
         }
@@ -196,7 +213,7 @@ namespace S2Lobby
             uint accountId = payload.UserId;
             if (accountId != Account.Id)
             {
-                StatusMsg resultPayload1 = Payloads.CreatePayload<StatusMsg>();
+                ResultStatusMsg resultPayload1 = Payloads.CreatePayload<ResultStatusMsg>();
                 resultPayload1.Errorcode = 1;
                 resultPayload1.Errormsg = "Incorrect account";
                 resultPayload1.TicketId = payload.TicketId;
@@ -219,7 +236,7 @@ namespace S2Lobby
             resultPayload2.TicketId = payload.TicketId;
             SendReply(writer, resultPayload2);
 
-            StatusMsg resultPayload3 = Payloads.CreatePayload<StatusMsg>();
+            ResultStatusMsg resultPayload3 = Payloads.CreatePayload<ResultStatusMsg>();
             resultPayload3.Errorcode = 0;
             resultPayload3.Errormsg = null;
             resultPayload3.TicketId = payload.TicketId;
@@ -231,7 +248,7 @@ namespace S2Lobby
             uint accountId = payload.UserId;
             if (accountId != Account.Id)
             {
-                StatusMsg resultPayload1 = Payloads.CreatePayload<StatusMsg>();
+                ResultStatusMsg resultPayload1 = Payloads.CreatePayload<ResultStatusMsg>();
                 resultPayload1.Errorcode = 1;
                 resultPayload1.Errormsg = "Incorrect account";
                 resultPayload1.TicketId = payload.TicketId;
@@ -254,7 +271,7 @@ namespace S2Lobby
             resultPayload2.TicketId = payload.TicketId;
             SendReply(writer, resultPayload2);
 
-            StatusMsg resultPayload3 = Payloads.CreatePayload<StatusMsg>();
+            ResultStatusMsg resultPayload3 = Payloads.CreatePayload<ResultStatusMsg>();
             resultPayload3.Errorcode = 0;
             resultPayload3.Errormsg = null;
             resultPayload3.TicketId = payload.TicketId;
@@ -281,7 +298,7 @@ namespace S2Lobby
             Account account = Program.Accounts.Get(Database.Connection, playerId);
             if (account == null)
             {
-                StatusMsg resultPayload1 = Payloads.CreatePayload<StatusMsg>();
+                ResultStatusMsg resultPayload1 = Payloads.CreatePayload<ResultStatusMsg>();
                 resultPayload1.Errorcode = 1;
                 resultPayload1.Errormsg = "Incorrect account";
                 resultPayload1.TicketId = payload.TicketId;
@@ -304,7 +321,7 @@ namespace S2Lobby
             resultPayload2.TicketId = payload.TicketId;
             SendReply(writer, resultPayload2);
 
-            StatusMsg resultPayload3 = Payloads.CreatePayload<StatusMsg>();
+            ResultStatusMsg resultPayload3 = Payloads.CreatePayload<ResultStatusMsg>();
             resultPayload3.Errorcode = 0;
             resultPayload3.Errormsg = null;
             resultPayload3.TicketId = payload.TicketId;
@@ -381,7 +398,7 @@ namespace S2Lobby
         {
             if (!ServerUpdateReceivers.TryAdd(Connection, Account.Id))
             {
-                StatusMsg resultPayload1 = Payloads.CreatePayload<StatusMsg>();
+                ResultStatusMsg resultPayload1 = Payloads.CreatePayload<ResultStatusMsg>();
                 resultPayload1.Errorcode = 3;
                 resultPayload1.Errormsg = "Can not get server list";
                 resultPayload1.TicketId = payload.TicketId;
@@ -398,7 +415,7 @@ namespace S2Lobby
                 SendReply(writer, resultPayload1);
             }
 
-            StatusMsg resultPayload2 = Payloads.CreatePayload<StatusMsg>();
+            ResultStatusMsg resultPayload2 = Payloads.CreatePayload<ResultStatusMsg>();
             resultPayload2.Errorcode = 0;
             resultPayload2.Errormsg = null;
             resultPayload2.TicketId = payload.TicketId;
@@ -417,7 +434,7 @@ namespace S2Lobby
             resultPayload1.PasswordRequired = false;
             resultPayload1.ServerType = server.Type;
             resultPayload1.ServerSubtype = server.SubType;
-            resultPayload1.Version = "1.1";
+            resultPayload1.Version = Constants.VERSION;
             resultPayload1.MaxPlayers = server.MaxPlayers;
             resultPayload1.CurPlayers = (ushort)server.Players.Count;
             resultPayload1.MaxSpectators = 0;
@@ -441,31 +458,47 @@ namespace S2Lobby
             uint accountId;
             ServerUpdateReceivers.TryRemove(Connection, out accountId);
 
-            StatusMsg resultPayload = Payloads.CreatePayload<StatusMsg>();
-            resultPayload.Errorcode = 0;
-            resultPayload.Errormsg = null;
-            resultPayload.TicketId = payload.TicketId;
-            SendReply(writer, resultPayload);
+            SendReply(writer, Payloads.CreateStatusOkMsg(payload.TicketId));
         }
 
         private void HandlePayload056(Payload56 payload, PayloadWriter writer)
         {
-            StatusMsg resultPayload = Payloads.CreatePayload<StatusMsg>();
-            resultPayload.Errorcode = 0;
-            resultPayload.Errormsg = null;
-            resultPayload.TicketId = payload.TicketId;
-            SendReply(writer, resultPayload);
+            SendReply(writer, Payloads.CreateStatusOkMsg(payload.TicketId));
         }
 
+        private void HandleRegObserverGlobalChat(RegObserverGlobalChat payload, PayloadWriter writer)
+        {
+            SendReply(writer, Payloads.CreateStatusOkMsg(payload.TicketId));
+        }
+
+        private void HandleRegObserverUserLogin(RegObserverUserLogin payload, PayloadWriter writer)
+        {
+            //TODO: do I need a proper implementation?
+            bool bSendAll = payload.SendAll;
+            SendReply(writer, Payloads.CreateStatusOkMsg(payload.TicketId));
+        }
+
+        private void HandleDeregObserverUserLogin(DeregObserverUserLogin payload, PayloadWriter writer)
+        {
+            // TODO: proper implementation?
+            SendReply(writer, Payloads.CreateStatusOkMsg(payload.TicketId));
+        }
+        
         private void HandlePayload157(Payload157 payload, PayloadWriter writer)
         {
-            StatusMsg resultPayload = Payloads.CreatePayload<StatusMsg>();
+            ResultStatusMsg resultPayload = Payloads.CreatePayload<ResultStatusMsg>();
             resultPayload.Errorcode = 0;
             resultPayload.Errormsg = null;
             resultPayload.TicketId = payload.TicketId;
             SendReply(writer, resultPayload);
         }
 
+        private void HandleDeregObserverGlobalChat(DeregObserverGlobalChat payload, PayloadWriter writer)
+        {
+            // TODO: proper implementation?
+            SendReply(writer, Payloads.CreateStatusOkMsg(payload.TicketId));
+        }
+        
         private void HandleConnectToServer(ConnectToServer payload, PayloadWriter writer)
         {
             uint serverId = payload.ServerId;
@@ -473,7 +506,7 @@ namespace S2Lobby
             Server server = Program.Servers.Get(serverId);
             if (server == null)
             {
-                StatusMsg resultPayload = Payloads.CreatePayload<StatusMsg>();
+                ResultStatusMsg resultPayload = Payloads.CreatePayload<ResultStatusMsg>();
                 resultPayload.Errorcode = 1;
                 resultPayload.Errormsg = "Unknown server";
                 resultPayload.TicketId = payload.TicketId;
@@ -511,7 +544,7 @@ namespace S2Lobby
         {
             if (_server == null)
             {
-                StatusMsg resultPayload1 = Payloads.CreatePayload<StatusMsg>();
+                ResultStatusMsg resultPayload1 = Payloads.CreatePayload<ResultStatusMsg>();
                 resultPayload1.Errorcode = 3;
                 resultPayload1.Errormsg = "No server";
                 resultPayload1.TicketId = payload.TicketId;
@@ -547,7 +580,7 @@ namespace S2Lobby
 
             SendServerUpdates();
 
-            StatusMsg resultPayload2 = Payloads.CreatePayload<StatusMsg>();
+            ResultStatusMsg resultPayload2 = Payloads.CreatePayload<ResultStatusMsg>();
             resultPayload2.Errorcode = 0;
             resultPayload2.Errormsg = null;
             resultPayload2.TicketId = payload.TicketId;
