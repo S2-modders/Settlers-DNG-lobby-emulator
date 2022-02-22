@@ -75,9 +75,6 @@ namespace S2Lobby
                 case Payloads.Types.UnknownType056:
                     HandlePayload056((Payload56)payload, writer);
                     return true;
-                case Payloads.Types.RegObserverGlobalChat:
-                    HandleRegObserverGlobalChat((RegObserverGlobalChat)payload, writer);
-                    return true;
                 case Payloads.Types.RegObserverUserLogin:
                     HandleRegObserverUserLogin((RegObserverUserLogin)payload, writer);
                     return true;
@@ -86,9 +83,6 @@ namespace S2Lobby
                     return true;
                 case Payloads.Types.UnknownType157:
                     HandlePayload157((Payload157)payload, writer);
-                    return true;
-                case Payloads.Types.DeregObserverGlobalChat:
-                    HandleDeregObserverGlobalChat((DeregObserverGlobalChat)payload, writer);
                     return true;
                 case Payloads.Types.ConnectToServer:
                     HandleConnectToServer((ConnectToServer)payload, writer);
@@ -102,6 +96,18 @@ namespace S2Lobby
                 case Payloads.Types.PlayerLeftServer:
                     HandlePlayerLeftServer((PlayerLeftServer)payload, writer);
                     return true;
+                
+                // Chat related packages
+                case Payloads.Types.RegObserverGlobalChat:
+                    HandleRegObserverGlobalChat((RegObserverGlobalChat)payload, writer);
+                    return true;
+                case Payloads.Types.DeregObserverGlobalChat:
+                    HandleDeregObserverGlobalChat((DeregObserverGlobalChat)payload, writer);
+                    return true;
+                case Payloads.Types.ChatPayload:
+                    HandleChatPayload((ChatPayload) payload, writer);
+                    return true;
+                
                 
                 default:
                     Logger.LogError($"{payloadType} not implemented!");
@@ -466,11 +472,6 @@ namespace S2Lobby
             SendReply(writer, Payloads.CreateStatusOkMsg(payload.TicketId));
         }
 
-        private void HandleRegObserverGlobalChat(RegObserverGlobalChat payload, PayloadWriter writer)
-        {
-            SendReply(writer, Payloads.CreateStatusOkMsg(payload.TicketId));
-        }
-
         private void HandleRegObserverUserLogin(RegObserverUserLogin payload, PayloadWriter writer)
         {
             //TODO: do I need a proper implementation?
@@ -478,12 +479,6 @@ namespace S2Lobby
             SendReply(writer, Payloads.CreateStatusOkMsg(payload.TicketId));
         }
 
-        private void HandleDeregObserverUserLogin(DeregObserverUserLogin payload, PayloadWriter writer)
-        {
-            // TODO: proper implementation?
-            SendReply(writer, Payloads.CreateStatusOkMsg(payload.TicketId));
-        }
-        
         private void HandlePayload157(Payload157 payload, PayloadWriter writer)
         {
             ResultStatusMsg resultPayload = Payloads.CreatePayload<ResultStatusMsg>();
@@ -630,6 +625,31 @@ namespace S2Lobby
             {
                 SendToLobbyConnection(server.Key, unlistInfo);
             }
+        }
+        
+        // Chat related payloads
+        
+        private void HandleRegObserverGlobalChat(RegObserverGlobalChat payload, PayloadWriter writer)
+        {
+            SendReply(writer, Payloads.CreateStatusOkMsg(payload.TicketId));
+        }
+        
+        private void HandleDeregObserverUserLogin(DeregObserverUserLogin payload, PayloadWriter writer)
+        {
+            // TODO: proper implementation?
+            SendReply(writer, Payloads.CreateStatusOkMsg(payload.TicketId));
+        }
+
+        private void HandleChatPayload(ChatPayload payload, PayloadWriter writer)
+        {
+            // TODO: send to all connected clients?
+            // FIXME: fromID is broken, I need something different
+
+            var testPayload = Payloads.CreatePayload<Chat>();
+            testPayload.Txt = payload.Txt;
+            testPayload.FromId = payload.FromId;
+
+            SendReply(writer, testPayload);
         }
     }
 }

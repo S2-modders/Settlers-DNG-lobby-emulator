@@ -160,7 +160,7 @@ namespace S2Library.Protocol
             UnknownType162 = 162,
             UnknownType163 = 163,
             UnknownType164 = 164,
-            UnknownType165 = 165,
+            Chat = 165,
             UnknownType166 = 166,
             UnknownType167 = 167,
             RegisterServer = 168, // UnknownType168
@@ -388,7 +388,7 @@ namespace S2Library.Protocol
             PayloadTypes.Add(typeof(Payload162), Types.UnknownType162);
             PayloadTypes.Add(typeof(Payload163), Types.UnknownType163);
             PayloadTypes.Add(typeof(Payload164), Types.UnknownType164);
-            PayloadTypes.Add(typeof(Payload165), Types.UnknownType165);
+            PayloadTypes.Add(typeof(Chat), Types.Chat); // Payload165
             PayloadTypes.Add(typeof(Payload166), Types.UnknownType166);
             PayloadTypes.Add(typeof(Payload167), Types.UnknownType167);
             PayloadTypes.Add(typeof(RegisterServer), Types.RegisterServer); // Payload168
@@ -4155,7 +4155,7 @@ namespace S2Library.Protocol
 //    (**(code**)(* piVar1 + 4))("txt",2,0x100);
 //    (**(code**)(* piVar1 + 8))("from_id",8);
 //    (**(code**)(* unaff_EDI + 4))(0xa5,piVar1);
-    public class Payload165 : PayloadPrefix
+    public class Chat : PayloadPrefix
     {
         public string Txt;
         public uint FromId;
