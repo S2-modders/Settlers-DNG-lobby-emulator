@@ -10,7 +10,7 @@ namespace S2Library.Protocol
             UnknownType001 = 1,
             ChatPayload = 2, // UnknownType002
             UnknownType003 = 3,
-            UnknownType004 = 4,
+            RequestLogin = 4,
             ChatUserInfo = 5, // UnknownType005
             ChatDisconnected = 6, // UnknownType006
             UnknownType007 = 7,
@@ -48,7 +48,7 @@ namespace S2Library.Protocol
             UnknownType039 = 39,
             UnknownType040 = 40,
             UnknownType041 = 41,
-            StatusMsg = 42, // UnknownType042
+            ResultStatusMsg = 42, // UnknownType042
             UnknownType043 = 43,
             UnknownType044 = 44,
             UnknownType045 = 45,
@@ -108,18 +108,18 @@ namespace S2Library.Protocol
             UnknownType102 = 102,
             UnknownType103 = 103,
             UnknownType104 = 104,
-            GetWelcomeMsg = 105, // UnknownType105
-            SendWelcomeMsg = 106, // UnknownType106
-            UnknownType107 = 107,
-            UnknownType108 = 108,
+            RequestMOTD = 105, // UnknownType105
+            SendMOTD = 106, // UnknownType106
+            RegObserverGlobalChat = 107, // UnknownType107b
+            DeregObserverGlobalChat = 108,
             UnknownType109 = 109,
             UnknownType110 = 110,
             UnknownType111 = 111,
             UnknownType112 = 112,
             UnknownType113 = 113,
             UnknownType114 = 114,
-            UnknownType115 = 115,
-            UnknownType116 = 116,
+            RegObserverUserLogin = 115,
+            DeregObserverUserLogin = 116,
             UnknownType117 = 117,
             UnknownType118 = 118,
             UnknownType119 = 119,
@@ -238,7 +238,7 @@ namespace S2Library.Protocol
             PayloadTypes.Add(typeof(Payload1), Types.UnknownType001);
             PayloadTypes.Add(typeof(ChatPayload), Types.ChatPayload); // Payload2
             PayloadTypes.Add(typeof(Payload3), Types.UnknownType003);
-            PayloadTypes.Add(typeof(Payload4), Types.UnknownType004);
+            PayloadTypes.Add(typeof(RequestLogin), Types.RequestLogin); // Payload4
             PayloadTypes.Add(typeof(ChatUserInfo), Types.ChatUserInfo); // Payload5
             PayloadTypes.Add(typeof(ChatDisconnected), Types.ChatDisconnected); // Payload6
             PayloadTypes.Add(typeof(Payload7), Types.UnknownType007);
@@ -276,7 +276,7 @@ namespace S2Library.Protocol
             PayloadTypes.Add(typeof(Payload39), Types.UnknownType039);
             PayloadTypes.Add(typeof(Payload40), Types.UnknownType040);
             PayloadTypes.Add(typeof(Payload41), Types.UnknownType041);
-            PayloadTypes.Add(typeof(StatusMsg), Types.StatusMsg); // Payload42
+            PayloadTypes.Add(typeof(ResultStatusMsg), Types.ResultStatusMsg); // Payload42
             PayloadTypes.Add(typeof(Payload43), Types.UnknownType043);
             PayloadTypes.Add(typeof(Payload44), Types.UnknownType044);
             PayloadTypes.Add(typeof(Payload45), Types.UnknownType045);
@@ -336,18 +336,18 @@ namespace S2Library.Protocol
             PayloadTypes.Add(typeof(Payload102), Types.UnknownType102);
             PayloadTypes.Add(typeof(Payload103), Types.UnknownType103);
             PayloadTypes.Add(typeof(Payload104), Types.UnknownType104);
-            PayloadTypes.Add(typeof(GetWelcomeMsg), Types.GetWelcomeMsg); // Payload105
-            PayloadTypes.Add(typeof(SendWelcomeMsg), Types.SendWelcomeMsg); // Payload106
-            PayloadTypes.Add(typeof(Payload107), Types.UnknownType107);
-            PayloadTypes.Add(typeof(Payload108), Types.UnknownType108);
+            PayloadTypes.Add(typeof(RequestMOTD), Types.RequestMOTD); // Payload105
+            PayloadTypes.Add(typeof(SendMOTD), Types.SendMOTD); // Payload106
+            PayloadTypes.Add(typeof(RegObserverGlobalChat), Types.RegObserverGlobalChat); // Payload106
+            PayloadTypes.Add(typeof(DeregObserverGlobalChat), Types.DeregObserverGlobalChat); // Payload106
             PayloadTypes.Add(typeof(Payload109), Types.UnknownType109);
             PayloadTypes.Add(typeof(Payload110), Types.UnknownType110);
             PayloadTypes.Add(typeof(Payload111), Types.UnknownType111);
             PayloadTypes.Add(typeof(Payload112), Types.UnknownType112);
             PayloadTypes.Add(typeof(Payload113), Types.UnknownType113);
             PayloadTypes.Add(typeof(Payload114), Types.UnknownType114);
-            PayloadTypes.Add(typeof(Payload115), Types.UnknownType115);
-            PayloadTypes.Add(typeof(Payload116), Types.UnknownType116);
+            PayloadTypes.Add(typeof(RegObserverUserLogin), Types.RegObserverUserLogin); // Payload115
+            PayloadTypes.Add(typeof(DeregObserverUserLogin), Types.DeregObserverUserLogin); // Payload116
             PayloadTypes.Add(typeof(Payload117), Types.UnknownType117);
             PayloadTypes.Add(typeof(Payload118), Types.UnknownType118);
             PayloadTypes.Add(typeof(Payload119), Types.UnknownType119);
@@ -491,6 +491,24 @@ namespace S2Library.Protocol
 
             return null;
         }
+
+        public static ResultStatusMsg CreateStatusOkMsg(uint ticketId)
+        {
+            var resultPayload = CreatePayload<ResultStatusMsg>();
+            resultPayload.Errorcode = 0;
+            resultPayload.Errormsg = null;
+            resultPayload.TicketId = ticketId;
+            return resultPayload;
+        }
+
+        public static ResultStatusMsg CreateStatusFailMsg(string msg, uint ticketId)
+        {
+            var resultPayload = CreatePayload<ResultStatusMsg>();
+            resultPayload.Errorcode = 1;
+            resultPayload.Errormsg = msg;
+            resultPayload.TicketId = ticketId;
+            return resultPayload;
+        }
     }
 
 //    undefined4 FUN_10028250(void)
@@ -604,7 +622,7 @@ namespace S2Library.Protocol
 //    (**(code**)(* piVar1 + 8))("patchlevel",8);
 //    (**(code**)(* piVar1 + 8))("ticket_id",8);
 //    (**(code**)(* unaff_EDI + 4))(4,piVar1);
-    public class Payload4 : PayloadPrefix
+    public class RequestLogin : PayloadPrefix // Payload4
     {
         public string Nick;
         public string Password;
@@ -1594,11 +1612,15 @@ namespace S2Library.Protocol
 //    (**(code**)(* piVar1 + 4))("errormsg",2,0x20);
 //    (**(code**)(* piVar1 + 8))("ticket_id",8);
 //    (**(code**)(* unaff_EDI + 4))(0x2a,piVar1);
-    public class StatusMsg : PayloadPrefix // Payload42
+    public class ResultStatusMsg : PayloadPrefix // Payload42
     {
         public byte Errorcode;
         public string Errormsg;
         public uint TicketId;
+
+        public byte ErrCodeOK = 0;
+        public byte ErrCodeFAIL = 1;
+        public byte ErrCodeENCR = 3;
 
         public override void Serialize(Serializer serializer, bool fullHeader = true)
         {
@@ -2250,7 +2272,7 @@ namespace S2Library.Protocol
 //    (**(code**)(* piVar1 + 8))("patchlevel",8);
 //    (**(code**)(* piVar1 + 8))("ticket_id",8);
 //    (**(code**)(* unaff_EDI + 4))(0x47,piVar1);
-    public class RequestCreateAccount : PayloadPrefix
+    public class RequestCreateAccount : PayloadPrefix // Payload71
     {
         public string Nick;
         public string Password;
@@ -3058,7 +3080,7 @@ namespace S2Library.Protocol
 //    (**(code**)(* piVar1 + 8))("type",6);
 //    (**(code**)(* piVar1 + 8))("ticket_id",8);
 //    (**(code**)(* unaff_EDI + 4))(0x69,piVar1);
-    public class GetWelcomeMsg : PayloadPrefix // Payload105
+    public class RequestMOTD : PayloadPrefix // Payload105
     {
         public uint TicketId;
 
@@ -3074,7 +3096,7 @@ namespace S2Library.Protocol
 //    (**(code**)(* piVar1 + 4))("txt",2,0x8000);
 //    (**(code**)(* piVar1 + 8))("ticket_id",8);
 //    (**(code**)(* unaff_EDI + 4))(0x6a,piVar1);
-    public class SendWelcomeMsg : PayloadPrefix // Payload106
+    public class SendMOTD : PayloadPrefix // Payload106
     {
         public string Txt;
         public uint TicketId;
@@ -3091,7 +3113,7 @@ namespace S2Library.Protocol
 //    (**(code**)(* piVar1 + 8))("type",6);
 //    (**(code**)(* piVar1 + 8))("ticket_id",8);
 //    (**(code**)(* unaff_EDI + 4))(0x6b,piVar1);
-    public class Payload107 : PayloadPrefix
+    public class RegObserverGlobalChat : PayloadPrefix // Payload107
     {
         public uint TicketId;
 
@@ -3106,7 +3128,7 @@ namespace S2Library.Protocol
 //    (**(code**)(* piVar1 + 8))("type",6);
 //    (**(code**)(* piVar1 + 8))("ticket_id",8);
 //    (**(code**)(* unaff_EDI + 4))(0x6c,piVar1);
-    public class Payload108 : PayloadPrefix
+    public class DeregObserverGlobalChat : PayloadPrefix // Payload108
     {
         public uint TicketId;
 
@@ -3215,7 +3237,7 @@ namespace S2Library.Protocol
 //    (**(code**)(* piVar1 + 8))("send_all",0xe);
 //    (**(code**)(* piVar1 + 8))("ticket_id",8);
 //    (**(code**)(* unaff_EDI + 4))(0x73,piVar1);
-    public class Payload115 : PayloadPrefix
+    public class RegObserverUserLogin : PayloadPrefix // Payload115
     {
         public bool SendAll;
         public uint TicketId;
@@ -3232,7 +3254,7 @@ namespace S2Library.Protocol
 //    (**(code**)(* piVar1 + 8))("type",6);
 //    (**(code**)(* piVar1 + 8))("ticket_id",8);
 //    (**(code**)(* unaff_EDI + 4))(0x74,piVar1);
-    public class Payload116 : PayloadPrefix
+    public class DeregObserverUserLogin : PayloadPrefix // Payload116
     {
         public uint TicketId;
 
@@ -4391,7 +4413,7 @@ namespace S2Library.Protocol
 //    (**(code**)(* piVar1 + 8))("selection",8);
 //    (**(code**)(* piVar1 + 8))("ticket_id",8);
 //    (**(code**)(* unaff_EDI + 4))(0xab,piVar1);
-    public class GetServers : PayloadPrefix // Payload171
+    public class GetServers : PayloadPrefix // Payload171 # RegObserverServerList
     {
         public bool SendAll;
         public byte ServerType;
@@ -4399,7 +4421,7 @@ namespace S2Library.Protocol
         public byte Level;
         public byte GameMode;
         public byte Hardcore;
-        public uint Selection;
+        public byte Selection; // TODO: this was changed from uint to byte
         public uint TicketId;
 
         public override void Serialize(Serializer serializer, bool fullHeader = true)
@@ -4420,7 +4442,7 @@ namespace S2Library.Protocol
 //    (**(code**)(* piVar1 + 8))("type",6);
 //    (**(code**)(* piVar1 + 8))("ticket_id",8);
 //    (**(code**)(* unaff_EDI + 4))(0xac,piVar1);
-    public class StopServerUpdates : PayloadPrefix // Payload172
+    public class StopServerUpdates : PayloadPrefix // Payload172 # DeregObserverServerList
     {
         public uint TicketId;
 
