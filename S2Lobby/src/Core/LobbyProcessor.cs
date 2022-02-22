@@ -340,7 +340,38 @@ namespace S2Lobby
         private void HandleRegisterServer(RegisterServer payload, PayloadWriter writer)
         {
             // TODO
-            var resultPayload = Payloads.CreateStatusOkMsg(payload.TicketId);
+            uint serverId = Program.Servers.Register(payload.Name);
+            if (serverId == 0)
+            {
+                SendReply(writer, Payloads.CreateStatusFailMsg("Failed to register server", payload.TicketId));
+                return;
+            }
+
+            _server = Program.Servers.Get(serverId);
+            if (_server == null)
+            {
+                Program.Servers.Remove(serverId);
+                SendReply(writer, Payloads.CreateStatusFailMsg("Failed to register server", payload.TicketId));
+                return;
+            }
+            
+            _server.ConnectionId = Connection;
+            _server.OwnerId = Account.Id;
+            _server.Description = payload.Description;
+            //_server.Ip = payload.Ip ?? Config.Get("lobby/ip");
+            _server.Port = payload.Port;
+            _server.PlayersTotal = 2;
+            _server.PlayersJoined = 0;
+            _server.Map = payload.Map;
+            _server.Running = false;
+            
+            SendServerUpdates(payload.TicketId);
+
+            var resultPayload = Payloads.CreatePayload<StatusWithId>();
+            resultPayload.Errorcode = 0;
+            resultPayload.Errormsg = null;
+            resultPayload.Id = _server.Id;
+            resultPayload.TicketId = payload.TicketId;
             SendReply(writer, resultPayload);
             
             Logger.Log($"User {Account.UserName} created a new lobby as {payload.Name}");
@@ -442,33 +473,20 @@ namespace S2Lobby
 
         private static ServerInfo CreateServerInfoPayload(Server server, uint ticketId)
         {
-            ServerInfo resultPayload1 = Payloads.CreatePayload<ServerInfo>();
-            resultPayload1.ServerId = server.Id;
-            resultPayload1.Name = server.Name;
-            resultPayload1.OwnerId = server.OwnerId;
-            resultPayload1.Description = server.Description;
-            resultPayload1.Ip = server.Ip;
-            resultPayload1.Port = server.Port;
-            resultPayload1.PasswordRequired = false;
-            resultPayload1.ServerType = server.Type;
-            resultPayload1.ServerSubtype = server.SubType;
-            resultPayload1.Version = Constants.VERSION;
-            resultPayload1.MaxPlayers = server.MaxPlayers;
-            resultPayload1.CurPlayers = (ushort)server.Players.Count;
-            resultPayload1.MaxSpectators = 0;
-            resultPayload1.CurSpectators = 0;
-            resultPayload1.AiPlayers = 0;
-            resultPayload1.RoomId = server.RoomId;
-            resultPayload1.Level = server.Level;
-            resultPayload1.GameMode = server.GameMode;
-            resultPayload1.Hardcore = server.Hardcore;
-            resultPayload1.Map = null;
-            resultPayload1.Running = server.Running;
-            resultPayload1.LockedConfig = server.LockedConfig;
-            resultPayload1.Data = server.Data; // Crypto.BytesFromHexString("25000000785e63607264d26567c00f001041007a");
-            resultPayload1.PasswordRequired = server.NeedsPassword;
-            resultPayload1.TicketId = ticketId;
-            return resultPayload1;
+            ServerInfo resultPayload = Payloads.CreatePayload<ServerInfo>();
+            resultPayload.ServerId = server.Id;
+            resultPayload.Name = server.Name;
+            //resultPayload1.OwnerId = server.OwnerId;
+            resultPayload.Description = server.Description;
+            resultPayload.PlayersTotal = server.PlayersTotal;
+            resultPayload.PlayersJoined = server.PlayersJoined;
+            resultPayload.Unknown1 = 0;
+            resultPayload.Map = server.Map;
+            resultPayload.Unknown2 = 0;
+            resultPayload.Unknown21 = 0;
+            resultPayload.Unknown3 = 10;
+            resultPayload.TicketId = ticketId;
+            return resultPayload;
         }
 
         private void HandleStopServerUpdates(StopServerUpdates payload, PayloadWriter writer)
@@ -632,9 +650,9 @@ namespace S2Lobby
             SendReply(writer, Payloads.CreateStatusOkMsg(payload.TicketId));
         }
         
-        private void SendServerUpdates()
+        private void SendServerUpdates(uint ticketId = 0)
         {
-            ServerInfo serverInfo = CreateServerInfoPayload(_server, 0);
+            ServerInfo serverInfo = CreateServerInfoPayload(_server, ticketId);
             KeyValuePair<uint, uint>[] servers = ServerUpdateReceivers.ToArray();
             foreach (KeyValuePair<uint, uint> server in servers)
             {

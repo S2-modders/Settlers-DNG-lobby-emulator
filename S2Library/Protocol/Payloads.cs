@@ -4387,7 +4387,7 @@ namespace S2Library.Protocol
 //    (**(code**)(* piVar1 + 4))("data",1,0);
 //    (**(code**)(* piVar1 + 8))("ticket_id",8);
 //    (**(code**)(* unaff_EDI + 4))(0xaa,piVar1);
-    public class ServerInfo : PayloadPrefix // Payload170
+    public class ServerInfoOld : PayloadPrefix // Payload170
     {
         public uint ServerId;
         public string Name;
@@ -4444,6 +4444,43 @@ namespace S2Library.Protocol
         }
     }
 
+        public class ServerInfo : PayloadPrefix // Payload170 # GameServerData
+    {
+        // TODO
+        public uint ServerId;
+        public string Name;
+        //public uint OwnerId;
+        public string Description;
+        public byte PlayersTotal;
+        public byte PlayersJoined;
+
+        public uint Unknown1;
+        public string Map;
+
+        public uint Unknown2;
+        public byte Unknown21;
+
+        public uint Unknown3;
+        public uint TicketId;
+
+        public override void Serialize(Serializer serializer, bool fullHeader = true)
+        {
+            base.Serialize(serializer, fullHeader);
+            serializer.Serialize(nameof(ServerId), ref ServerId);
+            serializer.Serialize(nameof(Name), ref Name);
+            //serializer.Serialize(nameof(OwnerId), ref OwnerId);
+            serializer.Serialize(nameof(Description), ref Description);
+            serializer.Serialize(nameof(PlayersTotal), ref PlayersTotal);
+            serializer.Serialize(nameof(PlayersJoined), ref PlayersJoined);
+            serializer.Serialize(nameof(Unknown1), ref Unknown1);
+            serializer.Serialize(nameof(Map), ref Map);
+            serializer.Serialize(nameof(Unknown2), ref Unknown2);
+            serializer.Serialize(nameof(Unknown21), ref Unknown21);
+            serializer.Serialize(nameof(Unknown3), ref Unknown3);
+            serializer.Serialize(nameof(TicketId), ref TicketId);
+        }
+    }
+    
 //    (**(code**)(* piVar1 + 0x14))();
 //    (**(code**)(* piVar1 + 8))("type",6);
 //    (**(code**)(* piVar1 + 8))("send_all",0xe);

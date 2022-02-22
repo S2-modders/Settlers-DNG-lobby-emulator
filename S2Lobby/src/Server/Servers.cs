@@ -82,6 +82,11 @@ namespace S2Lobby
         public string Description;
         public string Ip;
         public uint Port;
+
+        public byte PlayersTotal;
+        public byte PlayersJoined;
+        public string Map;
+        
         public byte Type;
         public byte SubType;
         public ushort MaxPlayers;

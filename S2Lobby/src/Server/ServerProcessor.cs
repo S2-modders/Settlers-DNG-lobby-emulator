@@ -48,7 +48,7 @@ namespace S2Lobby
             writer.Close();
             stream.Close();
 
-            return false;
+            return true;
         }
 
         protected sealed override void HandleMessage(BinaryReader reader, BinaryWriter writer)
