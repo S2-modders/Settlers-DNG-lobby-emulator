@@ -1,0 +1,153 @@
+{
+  "comments": [
+    {
+      "offset": 0,
+      "length": 4,
+      "text": "magic"
+    },
+    {
+      "offset": 0,
+      "length": 28,
+      "text": "header (28 bytes)"
+    },
+    {
+      "offset": 0,
+      "length": 80,
+      "text": "client -> server"
+    },
+    {
+      "offset": 4,
+      "length": 4,
+      "text": "sourceID"
+    },
+    {
+      "offset": 8,
+      "length": 4,
+      "text": "destID"
+    },
+    {
+      "offset": 12,
+      "length": 4,
+      "text": "payload type"
+    },
+    {
+      "offset": 16,
+      "length": 4,
+      "text": "unknown"
+    },
+    {
+      "offset": 20,
+      "length": 4,
+      "text": "payload size"
+    },
+    {
+      "offset": 24,
+      "length": 4,
+      "text": "payload checksum"
+    },
+    {
+      "offset": 28,
+      "length": 4,
+      "text": "magic"
+    },
+    {
+      "offset": 28,
+      "length": 52,
+      "text": "payload"
+    },
+    {
+      "offset": 32,
+      "length": 4,
+      "text": "sourceID"
+    },
+    {
+      "offset": 36,
+      "length": 32,
+      "text": "username"
+    },
+    {
+      "offset": 68,
+      "length": 8,
+      "text": "password"
+    },
+    {
+      "offset": 76,
+      "length": 4,
+      "text": "unknown"
+    },
+    {
+      "offset": 80,
+      "length": 28,
+      "text": "header"
+    },
+    {
+      "offset": 80,
+      "length": 80,
+      "text": "server -> client"
+    },
+    {
+      "offset": 160,
+      "length": 28,
+      "text": "header"
+    },
+    {
+      "offset": 160,
+      "length": 248,
+      "text": "client -> server"
+    },
+    {
+      "offset": 188,
+      "length": 2,
+      "text": "payload magic"
+    },
+    {
+      "offset": 190,
+      "length": 2,
+      "text": "payload type 1"
+    },
+    {
+      "offset": 192,
+      "length": 2,
+      "text": "payload type 2"
+    },
+    {
+      "offset": 194,
+      "length": 15,
+      "text": "length + nickname"
+    },
+    {
+      "offset": 209,
+      "length": 11,
+      "text": "length + password"
+    },
+    {
+      "offset": 220,
+      "length": 21,
+      "text": "length + cd key"
+    },
+    {
+      "offset": 241,
+      "length": 2,
+      "text": "keypool"
+    },
+    {
+      "offset": 243,
+      "length": 4,
+      "text": "patch level"
+    },
+    {
+      "offset": 247,
+      "length": 4,
+      "text": "ticket id"
+    }
+  ],
+  "highlights": [],
+  "data_types": [
+    {
+      "offset": 243,
+      "length": 4,
+      "type": "u32le"
+    }
+  ],
+  "virt_mappings": []
+}

@@ -1,0 +1,37 @@
+{
+  "comments": [
+    {
+      "offset": 0,
+      "length": 80,
+      "text": "client -> server"
+    },
+    {
+      "offset": 80,
+      "length": 80,
+      "text": "server -> client"
+    },
+    {
+      "offset": 160,
+      "length": 42,
+      "text": "client -> server"
+    },
+    {
+      "offset": 202,
+      "length": 43,
+      "text": "server -> client"
+    },
+    {
+      "offset": 245,
+      "length": 188,
+      "text": "client -> server"
+    },
+    {
+      "offset": 433,
+      "length": 238,
+      "text": "server -> client"
+    }
+  ],
+  "highlights": [],
+  "data_types": [],
+  "virt_mappings": []
+}

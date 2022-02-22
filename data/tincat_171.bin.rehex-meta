@@ -1,0 +1,62 @@
+{
+  "comments": [
+    {
+      "offset": 0,
+      "length": 28,
+      "text": "header"
+    },
+    {
+      "offset": 28,
+      "length": 10,
+      "text": "payload"
+    },
+    {
+      "offset": 38,
+      "length": 28,
+      "text": "header"
+    },
+    {
+      "offset": 66,
+      "length": 2,
+      "text": "magic"
+    },
+    {
+      "offset": 66,
+      "length": 20,
+      "text": "payload"
+    },
+    {
+      "offset": 68,
+      "length": 2,
+      "text": "type 1"
+    },
+    {
+      "offset": 70,
+      "length": 2,
+      "text": "type 2"
+    },
+    {
+      "offset": 72,
+      "length": 1,
+      "text": "send all"
+    },
+    {
+      "offset": 73,
+      "length": 1,
+      "text": "server type"
+    },
+    {
+      "offset": 74,
+      "length": 4,
+      "text": "room id"
+    },
+    {
+      "offset": 82,
+      "length": 4,
+      "text": "ticket id"
+    }
+  ],
+  "highlights": [],
+  "data_types": [],
+  "virt_mappings": []
+}
