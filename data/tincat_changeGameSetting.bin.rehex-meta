@@ -1,0 +1,77 @@
+{
+  "comments": [
+    {
+      "offset": 0,
+      "length": 28,
+      "text": "header"
+    },
+    {
+      "offset": 0,
+      "length": 452,
+      "text": "client -> server"
+    },
+    {
+      "offset": 28,
+      "length": 2,
+      "text": "magic"
+    },
+    {
+      "offset": 30,
+      "length": 4,
+      "text": "type 1 2"
+    },
+    {
+      "offset": 34,
+      "length": 4,
+      "text": "server id"
+    },
+    {
+      "offset": 38,
+      "length": 15,
+      "text": "name"
+    },
+    {
+      "offset": 53,
+      "length": 5,
+      "text": "??"
+    },
+    {
+      "offset": 58,
+      "length": 1,
+      "text": "num players total"
+    },
+    {
+      "offset": 59,
+      "length": 1,
+      "text": "num players joined"
+    },
+    {
+      "offset": 60,
+      "length": 3,
+      "text": "??"
+    },
+    {
+      "offset": 63,
+      "length": 31,
+      "text": "map"
+    },
+    {
+      "offset": 94,
+      "length": 5,
+      "text": "unknown"
+    },
+    {
+      "offset": 99,
+      "length": 4,
+      "text": "unknown"
+    },
+    {
+      "offset": 103,
+      "length": 4,
+      "text": "ticket id"
+    }
+  ],
+  "highlights": [],
+  "data_types": [],
+  "virt_mappings": []
+}

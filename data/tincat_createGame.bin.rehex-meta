@@ -1,0 +1,82 @@
+{
+  "comments": [
+    {
+      "offset": 0,
+      "length": 114,
+      "text": "client -> server"
+    },
+    {
+      "offset": 114,
+      "length": 129,
+      "text": "server -> client"
+    },
+    {
+      "offset": 243,
+      "length": 28,
+      "text": "header"
+    },
+    {
+      "offset": 243,
+      "length": 489,
+      "text": "client -> server (AddGameServer 168)"
+    },
+    {
+      "offset": 271,
+      "length": 2,
+      "text": "magic"
+    },
+    {
+      "offset": 273,
+      "length": 4,
+      "text": "type 1 and 2"
+    },
+    {
+      "offset": 277,
+      "length": 15,
+      "text": "name"
+    },
+    {
+      "offset": 292,
+      "length": 5,
+      "text": "description (?)"
+    },
+    {
+      "offset": 297,
+      "length": 4,
+      "text": "game port"
+    },
+    {
+      "offset": 301,
+      "length": 5,
+      "text": "unknown"
+    },
+    {
+      "offset": 306,
+      "length": 5,
+      "text": "unknown"
+    },
+    {
+      "offset": 311,
+      "length": 5,
+      "text": "unknown"
+    },
+    {
+      "offset": 316,
+      "length": 31,
+      "text": "map"
+    },
+    {
+      "offset": 347,
+      "length": 5,
+      "text": "unknown"
+    },
+    {
+      "offset": 352,
+      "length": 4,
+      "text": "ticket id"
+    }
+  ],
+  "highlights": [],
+  "data_types": [],
+  "virt_mappings": []
+}
