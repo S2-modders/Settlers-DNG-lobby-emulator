@@ -112,8 +112,8 @@ namespace S2Library.Protocol
             SendMOTD = 106, // UnknownType106
             RegObserverGlobalChat = 107, // UnknownType107b
             DeregObserverGlobalChat = 108,
-            UnknownType109 = 109,
-            UnknownType110 = 110,
+            UserLoggedIn = 109,
+            UserLoggedOut = 110,
             UnknownType111 = 111,
             UnknownType112 = 112,
             UnknownType113 = 113,
@@ -338,10 +338,10 @@ namespace S2Library.Protocol
             PayloadTypes.Add(typeof(Payload104), Types.UnknownType104);
             PayloadTypes.Add(typeof(RequestMOTD), Types.RequestMOTD); // Payload105
             PayloadTypes.Add(typeof(SendMOTD), Types.SendMOTD); // Payload106
-            PayloadTypes.Add(typeof(RegObserverGlobalChat), Types.RegObserverGlobalChat); // Payload106
-            PayloadTypes.Add(typeof(DeregObserverGlobalChat), Types.DeregObserverGlobalChat); // Payload106
-            PayloadTypes.Add(typeof(Payload109), Types.UnknownType109);
-            PayloadTypes.Add(typeof(Payload110), Types.UnknownType110);
+            PayloadTypes.Add(typeof(RegObserverGlobalChat), Types.RegObserverGlobalChat); // Payload107
+            PayloadTypes.Add(typeof(DeregObserverGlobalChat), Types.DeregObserverGlobalChat); // Payload108
+            PayloadTypes.Add(typeof(UserLoggedIn), Types.UserLoggedIn); // Payload109
+            PayloadTypes.Add(typeof(UserLoggedOut), Types.UserLoggedOut); // Payload110
             PayloadTypes.Add(typeof(Payload111), Types.UnknownType111);
             PayloadTypes.Add(typeof(Payload112), Types.UnknownType112);
             PayloadTypes.Add(typeof(Payload113), Types.UnknownType113);
@@ -3144,7 +3144,7 @@ namespace S2Library.Protocol
 //    (**(code**)(* piVar1 + 8))("user_id",8);
 //    (**(code**)(* piVar1 + 4))("name",2,0x80);
 //    (**(code**)(* unaff_EDI + 4))(0x6d,piVar1);
-    public class Payload109 : PayloadPrefix
+    public class UserLoggedIn : PayloadPrefix
     {
         public uint UserId;
         public string Name;
@@ -3161,7 +3161,7 @@ namespace S2Library.Protocol
 //    (**(code**)(* piVar1 + 8))("type",6);
 //    (**(code**)(* piVar1 + 8))("user_id",8);
 //    (**(code**)(* unaff_EDI + 4))(0x6e,piVar1);
-    public class Payload110 : PayloadPrefix
+    public class UserLoggedOut : PayloadPrefix
     {
         public uint UserId;
 

@@ -1,4 +1,6 @@
-﻿using System.IO;
+﻿using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.IO;
 using System.Text;
 using System.Xml.Schema;
 using S2Library.Protocol;
@@ -15,6 +17,9 @@ namespace S2Lobby
         private byte[] _sharedSecret;
         protected byte[] SessionKey;
 
+        public static readonly ConcurrentDictionary<uint, uint> GlobalLoginReceivers = new ConcurrentDictionary<uint, uint>();
+        public static readonly ConcurrentDictionary<uint, uint> GlobalUsersOnline = new ConcurrentDictionary<uint, uint>();
+
         public ServerProcessor(Program program, uint connection) : base(program, connection)
         {
             _Logger = new PayloadLogger(Logger.LogDebug);
@@ -26,7 +31,7 @@ namespace S2Lobby
             Database.Dispose();
         }
 
-        protected void SendToLobbyConnection(uint connection, PayloadPrefix message)
+        public void SendToLobbyConnection(uint connection, PayloadPrefix message)
         {
             LobbyProcessor processor = Program.GetLobbyProcessor(connection);
             if (processor == null)
@@ -170,10 +175,22 @@ namespace S2Lobby
                 SendReply(writer, Payloads.CreateStatusFailMsg("Wrong password", payload.TicketId));
                 return;
             }
+
+            GlobalUsersOnline.TryAdd(Connection, Account.Id);
             
             SendReply(writer, Payloads.CreateStatusOkMsg(payload.TicketId));
             
             Logger.Log($"User {Account.UserName} logged in");
+
+            // send login info to all users
+            foreach (KeyValuePair<uint, uint> loginObserver in GlobalLoginReceivers.ToArray())
+            {
+                var resultPayload = Payloads.CreatePayload<UserLoggedIn>();
+                resultPayload.UserId = Account.Id;
+                resultPayload.Name = Account.UserName;
+                
+                SendToLobbyConnection(loginObserver.Key, resultPayload);
+            }
         }
         
         private void HandleLogin(Login payload, PayloadWriter writer)

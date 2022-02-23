@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.IO;
 
 using S2Library.Connection;
@@ -139,25 +140,48 @@ namespace S2Lobby
         {
             if (_incomingLobbyConnections.ContainsKey(args.Conn.Id))
             {
+                NetworkProcessor networkProcessor;
+                if (!_incomingLobbyProcessors.TryGetValue(args.Conn.Id, out networkProcessor))
+                {
+                    Logger.LogError($" Can't get from incoming lobby processors: {args.Conn.Id}");
+                }
+                else
+                {
+                    uint accountId;
+                    if (ServerProcessor.GlobalUsersOnline.TryRemove(args.Conn.Id, out accountId))
+                    {
+                        uint tAccId;
+                        ServerProcessor.GlobalLoginReceivers.TryRemove(args.Conn.Id, out tAccId);
+                        
+                        var loginObservers = ServerProcessor.GlobalLoginReceivers.ToArray();
+                        foreach (KeyValuePair<uint, uint> loginObserver in loginObservers)
+                        {
+                            var resultPayload = Payloads.CreatePayload<UserLoggedOut>();
+                            resultPayload.UserId = accountId;
+                            ((ServerProcessor) networkProcessor).SendToLobbyConnection(loginObserver.Key, resultPayload);
+                        }
+                    }
+                }
+
                 Logger.LogDebug($"GAME -> LOBBY Disconnected: {args.Conn.Id}");
 
                 NetworkProcessor incomingLobbyProcessor;
                 if (!_incomingLobbyProcessors.TryRemove(args.Conn.Id, out incomingLobbyProcessor))
                 {
-                    Logger.Log($" Can't remove from incoming lobby processors: {args.Conn.Id}");
+                    Logger.LogError($" Can't remove from incoming lobby processors: {args.Conn.Id}");
                 }
                 incomingLobbyProcessor.Close();
 
                 ConcurrentQueue<byte[]> outgoingLobbyQueue;
                 if (!_outgoingLobbyQueues.TryRemove(args.Conn.Id, out outgoingLobbyQueue))
                 {
-                    Logger.Log($" Can't remove from outgoing lobby queues: {args.Conn.Id}");
+                    Logger.LogError($" Can't remove from outgoing lobby queues: {args.Conn.Id}");
                 }
 
                 Connection incomingLobbyConnection;
                 if (!_incomingLobbyConnections.TryRemove(args.Conn.Id, out incomingLobbyConnection))
                 {
-                    Logger.Log($" Can't remove from incoming lobby connections: {args.Conn.Id}");
+                    Logger.LogError($" Can't remove from incoming lobby connections: {args.Conn.Id}");
                 }
             }
         }

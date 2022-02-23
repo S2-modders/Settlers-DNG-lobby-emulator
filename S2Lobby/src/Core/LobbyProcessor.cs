@@ -503,15 +503,47 @@ namespace S2Lobby
 
         private void HandleRegObserverUserLogin(RegObserverUserLogin payload, PayloadWriter writer)
         {
-            //TODO: do I need a proper implementation?
-            bool bSendAll = payload.SendAll;
-            SendReply(writer, Payloads.CreateStatusOkMsg(payload.TicketId));
+            //TODO: better implementation?
+            if (GlobalLoginReceivers.TryAdd(Connection, Account.Id))
+            {
+                SendReply(writer, Payloads.CreateStatusOkMsg(payload.TicketId));
+            }
+            else
+            {
+                Logger.LogError($"RegObserverUserLogin failed for {Account.UserName}");
+            }
+
+            // notify new user about all logged in users
+            foreach (KeyValuePair<uint, uint> userOnline in GlobalUsersOnline.ToArray())
+            {
+                var resultPayload = Payloads.CreatePayload<UserLoggedIn>();
+                resultPayload.UserId = userOnline.Value;
+                resultPayload.Name = Program.Accounts.Get(Database.Connection, userOnline.Value).UserName;
+                SendReply(writer, resultPayload);
+            }
         }
         
         private void HandleDeregObserverUserLogin(DeregObserverUserLogin payload, PayloadWriter writer)
         {
-            // TODO: proper implementation?
-            SendReply(writer, Payloads.CreateStatusOkMsg(payload.TicketId));
+            uint accountId;
+            if (GlobalLoginReceivers.TryRemove(Connection, out accountId))
+            {
+                SendReply(writer, Payloads.CreateStatusOkMsg(payload.TicketId));   
+            }
+            else
+            {
+                Logger.LogError($"DeregObserverUserLogin failed for {accountId}");
+            }
+            
+            return;
+
+            // notify all users
+            foreach (KeyValuePair<uint, uint> loginObserver in GlobalLoginReceivers.ToArray())
+            {
+                var resultPayload = Payloads.CreatePayload<UserLoggedOut>();
+                resultPayload.UserId = accountId;
+                SendToLobbyConnection(loginObserver.Key, resultPayload);
+            }
         }
         
         private void HandlePayload157(Payload157 payload, PayloadWriter writer)
@@ -681,7 +713,7 @@ namespace S2Lobby
             }
             else
             {
-                SendReply(writer, Payloads.CreateStatusFailMsg("Failed to add GlobalChatObserver", payload.TicketId));
+                Logger.LogError($"Failed to add GlobalChatObserver for {Account.Id}");
             }
         }
 
@@ -707,8 +739,7 @@ namespace S2Lobby
             foreach (KeyValuePair<uint, uint> chatobserver in chatobservers)
             {
                 var resultPayload = Payloads.CreatePayload<Chat>();
-                // TODO name should be written by the game (which it currently does not)
-                resultPayload.Txt = Account.GetUserNameStripped() + ": " + payload.Txt;
+                resultPayload.Txt = payload.Txt;
                 resultPayload.FromId = Account.Id;
 
                 SendToLobbyConnection(chatobserver.Key, resultPayload);
