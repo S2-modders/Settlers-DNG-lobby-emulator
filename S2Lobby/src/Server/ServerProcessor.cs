@@ -26,12 +26,12 @@ namespace S2Lobby
             Database.Dispose();
         }
 
-        protected bool SendToLobbyConnection(uint connection, PayloadPrefix message)
+        protected void SendToLobbyConnection(uint connection, PayloadPrefix message)
         {
             LobbyProcessor processor = Program.GetLobbyProcessor(connection);
             if (processor == null)
             {
-                return false;
+                return;
             }
 
             MemoryStream stream = new MemoryStream();
@@ -47,8 +47,6 @@ namespace S2Lobby
 
             writer.Close();
             stream.Close();
-
-            return true;
         }
 
         protected sealed override void HandleMessage(BinaryReader reader, BinaryWriter writer)
