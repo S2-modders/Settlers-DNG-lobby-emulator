@@ -13,6 +13,7 @@ namespace S2Lobby
 
         private Server _server;
         private static readonly ConcurrentDictionary<uint, uint> ServerUpdateReceivers = new ConcurrentDictionary<uint, uint>();
+        private static readonly ConcurrentDictionary<uint, uint> GlobalChatReceivers = new ConcurrentDictionary<uint, uint>();
 
         public LobbyProcessor(Program program, uint connection) : base(program, connection)
         {
@@ -210,9 +211,7 @@ namespace S2Lobby
         {
             SendMOTD resultPayload = Payloads.CreatePayload<SendMOTD>();
             
-            // I need to get rid of the last char, since that breaks the MOTD for some reason
-            string name = Account.UserName.Substring(0, Account.UserName.Length - 1);
-            resultPayload.Txt = Constants.MOTD.Replace("%name%", name);
+            resultPayload.Txt = Constants.MOTD.Replace("%name%", Account.GetUserNameStripped());
             resultPayload.TicketId = payload.TicketId;
             SendReply(writer, resultPayload);
         }
@@ -508,7 +507,13 @@ namespace S2Lobby
             bool bSendAll = payload.SendAll;
             SendReply(writer, Payloads.CreateStatusOkMsg(payload.TicketId));
         }
-
+        
+        private void HandleDeregObserverUserLogin(DeregObserverUserLogin payload, PayloadWriter writer)
+        {
+            // TODO: proper implementation?
+            SendReply(writer, Payloads.CreateStatusOkMsg(payload.TicketId));
+        }
+        
         private void HandlePayload157(Payload157 payload, PayloadWriter writer)
         {
             ResultStatusMsg resultPayload = Payloads.CreatePayload<ResultStatusMsg>();
@@ -518,12 +523,6 @@ namespace S2Lobby
             SendReply(writer, resultPayload);
         }
 
-        private void HandleDeregObserverGlobalChat(DeregObserverGlobalChat payload, PayloadWriter writer)
-        {
-            // TODO: proper implementation?
-            SendReply(writer, Payloads.CreateStatusOkMsg(payload.TicketId));
-        }
-        
         private void HandleConnectToServer(ConnectToServer payload, PayloadWriter writer)
         {
             uint serverId = payload.ServerId;
@@ -676,25 +675,44 @@ namespace S2Lobby
         
         private void HandleRegObserverGlobalChat(RegObserverGlobalChat payload, PayloadWriter writer)
         {
-            SendReply(writer, Payloads.CreateStatusOkMsg(payload.TicketId));
+            if (GlobalChatReceivers.TryAdd(Connection, Account.Id))
+            {
+                SendReply(writer, Payloads.CreateStatusOkMsg(payload.TicketId));   
+            }
+            else
+            {
+                SendReply(writer, Payloads.CreateStatusFailMsg("Failed to add GlobalChatObserver", payload.TicketId));
+            }
+        }
+
+        private void HandleDeregObserverGlobalChat(DeregObserverGlobalChat payload, PayloadWriter writer)
+        {
+            uint accountId;
+            if (GlobalChatReceivers.TryRemove(Connection, out accountId))
+            {
+                SendReply(writer, Payloads.CreateStatusOkMsg(payload.TicketId));   
+            }
+            else
+            {
+                Logger.LogError($"Failed to DeregObserverChat for {accountId}");
+            }
         }
         
-        private void HandleDeregObserverUserLogin(DeregObserverUserLogin payload, PayloadWriter writer)
-        {
-            // TODO: proper implementation?
-            SendReply(writer, Payloads.CreateStatusOkMsg(payload.TicketId));
-        }
-
         private void HandleChatPayload(ChatPayload payload, PayloadWriter writer)
         {
-            // TODO: send to all connected clients?
-            // FIXME: fromID is broken, I need something different
+            // TODO:
+            // - chat filter?
+            // - proper encoding (ß turns into ?)
+            var chatobservers = GlobalChatReceivers.ToArray();
+            foreach (KeyValuePair<uint, uint> chatobserver in chatobservers)
+            {
+                var resultPayload = Payloads.CreatePayload<Chat>();
+                // TODO name should be written by the game (which it currently does not)
+                resultPayload.Txt = Account.GetUserNameStripped() + ": " + payload.Txt;
+                resultPayload.FromId = Account.Id;
 
-            var testPayload = Payloads.CreatePayload<Chat>();
-            testPayload.Txt = payload.Txt;
-            testPayload.FromId = payload.FromId;
-
-            SendReply(writer, testPayload);
+                SendToLobbyConnection(chatobserver.Key, resultPayload);
+            }
         }
     }
 }

@@ -226,5 +226,10 @@ namespace S2Lobby
         public string Email;
         public byte[] UserData;
         public string PlayerName;
+
+        public string GetUserNameStripped()
+        {
+            return UserName.Substring(0, UserName.Length - 1);
+        }
     }
 }
