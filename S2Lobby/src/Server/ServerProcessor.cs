@@ -162,17 +162,27 @@ namespace S2Lobby
 
         private void HandleRequestLogin(RequestLogin payload, PayloadWriter writer)
         {
+            /*
+             * ERROR codes:
+             * 0x0: OK
+             * 0x1B: CD Key invalid
+             * 0x3D: auth failed
+             * 0x3E: wrong version
+             */
             Account = Program.Accounts.Get(Database.Connection, payload.Nick);
             if (Account == null)
             {
-                SendReply(writer, Payloads.CreateStatusFailMsg("Account not found", payload.TicketId));
+                // we use 1B as a replacement for this error
+                SendReply(writer, Payloads.CreateStatusFailMsg(
+                    0x1B, "Account not found", payload.TicketId));
                 return;
             }
 
             byte[] password = Encoding.ASCII.GetBytes(payload.Password);
             if (!Serializer.CompareArrays(password, Account.Password))
             {
-                SendReply(writer, Payloads.CreateStatusFailMsg("Wrong password", payload.TicketId));
+                SendReply(writer, Payloads.CreateStatusFailMsg(
+                    0x3D, "Wrong password", payload.TicketId));
                 return;
             }
 
@@ -211,9 +221,9 @@ namespace S2Lobby
             /*
              * ERR codes:
              * 0x0: OK
-             * 0x1A: CD Key invalid
-             * 0x29: User already exists
-             * 0x3E: Wrong Version
+             * 0x1A: CD key invalid
+             * 0x29: user already exists
+             * 0x3E: wrong version
              */
             
             byte[] password = Encoding.ASCII.GetBytes(payload.Password);
