@@ -208,6 +208,14 @@ namespace S2Lobby
 
         private void HandleCreateAccount(RequestCreateAccount payload, PayloadWriter writer)
         {
+            /*
+             * ERR codes:
+             * 0x0: OK
+             * 0x1A: CD Key invalid
+             * 0x29: User already exists
+             * 0x3E: Wrong Version
+             */
+            
             byte[] password = Encoding.ASCII.GetBytes(payload.Password);
             // TODO: cdKey is broken, FIXME
             byte[] cdKey = Encoding.ASCII.GetBytes(payload.CdKey);
@@ -215,14 +223,17 @@ namespace S2Lobby
             uint res = Program.Accounts.Create(Database.Connection, payload.Nick, password, cdKey);
             if (res == 0)
             {
-                SendReply(writer, Payloads.CreateStatusFailMsg("Username already in use", payload.TicketId));
+                SendReply(writer, Payloads.CreateStatusFailMsg(
+                    0x29, "Username already in use", payload.TicketId));
                 return;
             }
             
             Account = Program.Accounts.Get(Database.Connection, payload.Nick);
             if (Account == null)
             {
-                SendReply(writer, Payloads.CreateStatusFailMsg("Account not created", payload.TicketId));
+                // Sending 1A because of lack of proper error code
+                SendReply(writer, Payloads.CreateStatusFailMsg(
+                    0x1A, "Account not created", payload.TicketId));
                 return;
             }
             
