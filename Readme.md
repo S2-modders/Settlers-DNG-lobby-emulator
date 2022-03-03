@@ -1,17 +1,23 @@
-## Sacred 2 Lobby Emulator
+## The Settlers II: 10th Lobby Emulator [WiP]
 
-*Disclaimer: I am not the author of the codebase, this repository is just ment to be used to work together on code written and supplied by darkmatters board user cocomed which you can find [here](http://darkmatters.org/forums/index.php?/topic/23833-network-traffic-probes-for-sacred-2-available/&do=findComment&comment=7015188).*
+This project is an attempt to recreate the online mode of The Settlers II: 10th anniversary edition by emulating the online lobby and reimplementing the tincat3 network protocol.
 
-In it's current state, this solution allows to host a basic Open Net Sacred2 Lobby.
+Tincat version used: 3.0.53
 
-### Usage
+### Current Progress:
 
-In optionsDefault.txt:
+- [x] create account
+- [x] login with account
+- [x] request and show MOTD
+- [x] show online status of other players
+- [x] global chat with properly working usernames
+- [x] error messages when auth or account creation failed
+- [ ] create new game
+- [ ] see all created games
+- [ ] join new game
+- [ ] launch new lobby with other players
 
-network = {  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lobby_ip = "localhost",  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lobby_port = 6800  
-}
+### Usage [outdated - TODO]
 
 In the directory of the executable write the public IP of the lobby server into ip.cfg file.
 
@@ -28,3 +34,9 @@ In the directory of the executable write the public IP of the lobby server into 
 11. play
 
 The server hosting needs an account, but may use the same credentials like the player accounts.
+
+### Credits
+
+- BIG THANKS to cocomed who originally created this project and wrote most of the core code [here](http://darkmatters.org/forums/index.php?/topic/23833-network-traffic-probes-for-sacred-2-available/&do=findComment&comment=7015188)
+- pnxr for continuing the project and adding fixes
+- the sacred2 community
