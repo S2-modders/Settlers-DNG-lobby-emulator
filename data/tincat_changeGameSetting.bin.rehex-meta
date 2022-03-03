@@ -38,17 +38,17 @@
     {
       "offset": 58,
       "length": 1,
-      "text": "num players total"
+      "text": "max players"
     },
     {
       "offset": 59,
       "length": 1,
-      "text": "num players joined"
+      "text": "curr players"
     },
     {
       "offset": 60,
       "length": 3,
-      "text": "??"
+      "text": "ai players"
     },
     {
       "offset": 63,
