@@ -157,7 +157,7 @@ namespace S2Library.Protocol
             }
             else
             {
-                byte[] bytes = Encoding.ASCII.GetBytes(data);
+                byte[] bytes = Encoding.ASCII.GetBytes(data + "\0");
                 int length = bytes.Length;
                 _writer.Write(length);
                 _writer.Write(bytes);
