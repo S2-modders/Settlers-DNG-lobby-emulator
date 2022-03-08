@@ -57,13 +57,13 @@
     },
     {
       "offset": 311,
-      "length": 5,
-      "text": "unknown"
+      "length": 1,
+      "text": "max players"
     },
     {
       "offset": 316,
       "length": 31,
-      "text": "map"
+      "text": "map, lang, version\nseparated with 0B (\\v - vertical tab)"
     },
     {
       "offset": 347,

@@ -1,0 +1,82 @@
+{
+  "comments": [
+    {
+      "offset": 0,
+      "length": 6,
+      "text": "type"
+    },
+    {
+      "offset": 6,
+      "length": 4,
+      "text": "gameserver id"
+    },
+    {
+      "offset": 10,
+      "length": 9,
+      "text": "name"
+    },
+    {
+      "offset": 19,
+      "length": 4,
+      "text": "owner id (?)"
+    },
+    {
+      "offset": 23,
+      "length": 5,
+      "text": "description (?)"
+    },
+    {
+      "offset": 28,
+      "length": 17,
+      "text": "ip"
+    },
+    {
+      "offset": 45,
+      "length": 4,
+      "text": "port"
+    },
+    {
+      "offset": 54,
+      "length": 12,
+      "text": "unused version string (?)"
+    },
+    {
+      "offset": 66,
+      "length": 1,
+      "text": "max players"
+    },
+    {
+      "offset": 67,
+      "length": 1,
+      "text": "curr players"
+    },
+    {
+      "offset": 68,
+      "length": 1,
+      "text": "ai players"
+    },
+    {
+      "offset": 72,
+      "length": 31,
+      "text": "map name"
+    },
+    {
+      "offset": 103,
+      "length": 1,
+      "text": "running"
+    },
+    {
+      "offset": 104,
+      "length": 4,
+      "text": "unknown"
+    },
+    {
+      "offset": 108,
+      "length": 4,
+      "text": "ticket id (?)"
+    }
+  ],
+  "highlights": [],
+  "data_types": [],
+  "virt_mappings": []
+}
