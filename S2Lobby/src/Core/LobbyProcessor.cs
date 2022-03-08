@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-
+using System.Runtime.Remoting.Channels;
+using System.Threading;
+using Microsoft.VisualBasic.Logging;
 using S2Library.Protocol;
 
 namespace S2Lobby
@@ -99,6 +101,12 @@ namespace S2Lobby
                     return true;
                 case Payloads.Types.PlayerLeftServer:
                     HandlePlayerLeftServer((PlayerLeftServer)payload, writer);
+                    return true;
+                case Payloads.Types.JoinServer:
+                    HandleJoinServer((JoinServer) payload, writer);
+                    return true;
+                case Payloads.Types.DeregObserverBuddylist:
+                    HandleDeregObserverBuddylist((DeregObserverBuddylist) payload, writer);
                     return true;
                 
                 // Chat related packages
@@ -342,6 +350,7 @@ namespace S2Lobby
             uint serverId = Program.Servers.Register(payload.Name);
             if (serverId == 0)
             {
+                // TODO implement error codes if available
                 SendReply(writer, Payloads.CreateStatusFailMsg("Failed to register server", payload.TicketId));
                 return;
             }
@@ -357,10 +366,14 @@ namespace S2Lobby
             _server.ConnectionId = Connection;
             _server.OwnerId = Account.Id;
             _server.Description = payload.Description;
+            //_server.Ip = "192.168.8.20"; // TODO get ip from connection if possible
+            _server.Ip = Config.Get("lobby/ip");
             //_server.Ip = payload.Ip ?? Config.Get("lobby/ip");
             _server.Port = payload.Port;
-            _server.PlayersTotal = 2;
-            _server.PlayersJoined = 0;
+            // TODO implement remaining
+            _server.PlayersTotal = payload.PlayersTotal;
+            _server.PlayersJoined = 1;
+            _server.PlayersAi = 0;
             _server.Map = payload.Map;
             _server.Running = false;
             
@@ -459,10 +472,12 @@ namespace S2Lobby
             uint ticketId = payload.TicketId;
             foreach (Server server in servers)
             {
-                ServerInfo resultPayload1 = CreateServerInfoPayload(server, ticketId);
+                GameServerData resultPayload1 = CreateServerInfoPayload(server, ticketId);
                 SendReply(writer, resultPayload1);
             }
 
+            //ServerListTest(writer, payload.TicketId);
+            
             ResultStatusMsg resultPayload2 = Payloads.CreatePayload<ResultStatusMsg>();
             resultPayload2.Errorcode = 0;
             resultPayload2.Errormsg = null;
@@ -470,20 +485,56 @@ namespace S2Lobby
             SendReply(writer, resultPayload2);
         }
 
-        private static ServerInfo CreateServerInfoPayload(Server server, uint ticketId)
+        private void ServerListTest(PayloadWriter writer, uint ticketId)
         {
-            ServerInfo resultPayload = Payloads.CreatePayload<ServerInfo>();
+            GameServerData resultPayload = Payloads.CreatePayload<GameServerData>();
+
+            resultPayload.data = Crypto.BytesFromHexString("05000000 7465737400" +
+                                                           "05000000" +
+                                                           "01000000 00" +
+                                                           "0D000000 3139322E3136382E382E323000" +
+                                                           "67150000" +
+                                                           "00 00 00 00 00" +
+                                                           "06000000313137353700" +
+                                                           "06" +
+                                                           "01" +
+                                                           "04" +
+                                                           "00 00 00" +
+                                                           "1B000000 4D505F32505F53746F726D5F436F6173740B64655F313137353700" +
+                                                           "00" +
+                                                           "00 00 00 00" +
+                                                           "0A 00 00 00");
+                
+            resultPayload.ServerId = 54;
+            resultPayload.OwnerId = 1;
+            resultPayload.Name = "testname";
+            resultPayload.Description = "description";
+            resultPayload.Ip = "192.168.8.20";
+            resultPayload.Port = 5479;
+            resultPayload.PlayersTotal = 6;
+            resultPayload.PlayersJoined = 2;
+            resultPayload.PlayersAi = 1;
+            resultPayload.Map = "MP_2P_Storm_Coast\vde_11757";
+            resultPayload.Running = false;
+            resultPayload.TicketId = ticketId;
+
+            SendReply(writer, resultPayload);
+        }
+        
+        private static GameServerData CreateServerInfoPayload(Server server, uint ticketId)
+        {
+            GameServerData resultPayload = Payloads.CreatePayload<GameServerData>();
             resultPayload.ServerId = server.Id;
+            resultPayload.OwnerId = server.OwnerId;
             resultPayload.Name = server.Name;
-            //resultPayload1.OwnerId = server.OwnerId;
             resultPayload.Description = server.Description;
+            resultPayload.Ip = server.Ip;
+            resultPayload.Port = server.Port;
             resultPayload.PlayersTotal = server.PlayersTotal;
             resultPayload.PlayersJoined = server.PlayersJoined;
-            resultPayload.Unknown1 = 0;
+            resultPayload.PlayersAi = server.PlayersAi;
             resultPayload.Map = server.Map;
-            resultPayload.Unknown2 = 0;
-            resultPayload.Unknown21 = 0;
-            resultPayload.Unknown3 = 10;
+            resultPayload.Running = server.Running;
             resultPayload.TicketId = ticketId;
             return resultPayload;
         }
@@ -518,6 +569,7 @@ namespace S2Lobby
             {
                 var resultPayload = Payloads.CreatePayload<UserLoggedIn>();
                 resultPayload.UserId = userOnline.Value;
+                // TODO sometimes causes crash
                 resultPayload.Name = Program.Accounts.Get(Database.Connection, userOnline.Value).UserName;
                 SendReply(writer, resultPayload);
             }
@@ -544,6 +596,43 @@ namespace S2Lobby
                 resultPayload.UserId = accountId;
                 SendToLobbyConnection(loginObserver.Key, resultPayload);
             }
+        }
+
+        private void HandleJoinServer(JoinServer payload, PayloadWriter writer)
+        {
+            // TODO implement error messages
+            /*
+             * Error IDs:
+             * 0x84 (132): GameServer not found
+             * 0x87 (135): GameServer full
+             */
+            Server server = Program.Servers.Get(payload.ServerId);
+            if (server == null)
+            {
+                SendReply(writer, Payloads.CreateStatusFailMsg(
+                    0x84, "GameServer could not be found", payload.TicketId));
+                return;
+            }
+
+            server.Players.TryAdd(payload.UserId, Connection);
+
+            _server = server;
+            
+            SendReply(writer, Payloads.CreateStatusOkMsg(payload.TicketId));
+        }
+
+        private void HandleDeregObserverBuddylist(DeregObserverBuddylist payload, PayloadWriter writer)
+        {
+            // TODO ?
+            if (_server == null)
+            {
+                SendReply(writer, Payloads.CreateStatusFailMsg("GameServer does not exist", payload.TicketId));
+                return;
+            }
+            uint connection;
+            _server.Players.TryRemove(payload.UserId, out connection);
+            
+            SendReply(writer, Payloads.CreateStatusOkMsg(payload.TicketId));
         }
         
         private void HandlePayload157(Payload157 payload, PayloadWriter writer)
@@ -598,7 +687,25 @@ namespace S2Lobby
 
         private void HandleUpdateServerInfo(UpdateServerInfo payload, PayloadWriter writer)
         {
+            if (_server == null)
+            {
+                ResultStatusMsg resultPayload1 = Payloads.CreatePayload<ResultStatusMsg>();
+                resultPayload1.Errorcode = 3;
+                resultPayload1.Errormsg = "No server";
+                resultPayload1.TicketId = payload.TicketId;
+                SendReply(writer, resultPayload1);
+                return;
+            }
+            
             // TODO
+            _server.Name = payload.Name;
+            _server.Description = payload.Description;
+            _server.PlayersTotal = payload.PlayersMax;
+            _server.PlayersJoined = (byte) (payload.PlayersJoined + 1); // TODO not really sure about this one
+            _server.Map = payload.Map;
+
+            SendServerUpdates(payload.TicketId);
+            
             SendReply(writer, Payloads.CreateStatusOkMsg(payload.TicketId));
             
             Logger.Log($"Server {payload.Name} got updated by {Account.UserName}");
@@ -677,17 +784,70 @@ namespace S2Lobby
 
         private void HandleUnlistServer(UnlistServer payload, PayloadWriter writer)
         {
-            // TODO: notify all clients(?) that the server is not listed anymore
+            // TODO
+            /*
+             * TicketIds:
+             * 0xB (11): RemoveGameServer
+             * 0xE (14): StartGameServer 
+             */
+            Thread.Sleep(1000);
             SendReply(writer, Payloads.CreateStatusOkMsg(payload.TicketId));
+            
+            switch (payload.TicketId)
+            {
+                case 11:
+                    Program.Servers.Remove(payload.ServerId);
+                    NotifyUnlistServer(payload.ServerId, payload.Running);
+
+                    if (_server != null && _server.Id == payload.ServerId)
+                    {
+                        _server = null;
+                    }
+                    break;
+                case 14:
+                    Server server = Program.Servers.Get(payload.ServerId);
+                    if (server == null)
+                    {
+                        SendReply(writer, Payloads.CreateStatusFailMsg("ServerId does not exist", payload.TicketId));
+                        return;
+                    }
+                    server.Running = payload.Running;
+
+                    var startGameServer = Payloads.CreateStatusOkMsg(payload.TicketId);
+                    UnlistServer unlistInfo = Payloads.CreatePayload<UnlistServer>();
+                    unlistInfo.ServerId = payload.ServerId;
+                    unlistInfo.Running = payload.Running;
+                    unlistInfo.TicketId = payload.TicketId;
+
+                    KeyValuePair<uint, uint>[] players = server.Players.ToArray();
+                    foreach (KeyValuePair<uint, uint> player in players)
+                    {
+                        var statusIdOk = Payloads.CreatePayload<StatusWithId>();
+                        statusIdOk.Errorcode = 0;
+                        statusIdOk.Errormsg = null;
+                        statusIdOk.Id = server.Id;
+                        statusIdOk.TicketId = payload.TicketId;
+                        
+                        SendToLobbyConnection(player.Value, statusIdOk);
+                        SendToLobbyConnection(player.Value, Payloads.CreateStatusOkMsg(payload.TicketId));
+                    }
+                    //SendServerUpdates(payload.TicketId, server);
+                    break;
+            }
+            //SendReply(writer, Payloads.CreateStatusOkMsg(payload.TicketId));
         }
         
-        private void SendServerUpdates(uint ticketId = 0)
+        private void SendServerUpdates(uint ticketId = 0, Server server = null)
         {
-            ServerInfo serverInfo = CreateServerInfoPayload(_server, ticketId);
-            KeyValuePair<uint, uint>[] servers = ServerUpdateReceivers.ToArray();
-            foreach (KeyValuePair<uint, uint> server in servers)
+            if (server == null)
             {
-                SendToLobbyConnection(server.Key, serverInfo);
+                server = _server;   
+            }
+            GameServerData gameServerData = CreateServerInfoPayload(server, ticketId);
+            KeyValuePair<uint, uint>[] servers = ServerUpdateReceivers.ToArray();
+            foreach (KeyValuePair<uint, uint> updateRecv in servers)
+            {
+                SendToLobbyConnection(updateRecv.Key, gameServerData);
             }
         }
 
@@ -735,6 +895,13 @@ namespace S2Lobby
             // TODO:
             // - chat filter?
             // - proper encoding (ß turns into ?)
+            
+            // for debugging only
+            if (payload.Txt.Contains("s"))
+            {
+                //ServerListTest(writer, payload.TicketId);
+            }
+            
             var chatobservers = GlobalChatReceivers.ToArray();
             foreach (KeyValuePair<uint, uint> chatobserver in chatobservers)
             {
