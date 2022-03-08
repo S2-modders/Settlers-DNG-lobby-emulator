@@ -54,6 +54,16 @@ namespace S2Lobby
             stream.Close();
         }
 
+        public void CloseLobbyProcessor(uint connection)
+        {
+            LobbyProcessor processor = Program.GetLobbyProcessor(connection);
+            if (processor == null)
+            {
+                return;
+            }
+            processor.Close();
+        }
+        
         protected sealed override void HandleMessage(BinaryReader reader, BinaryWriter writer)
         {
             reader.BaseStream.Seek(0, SeekOrigin.Begin);
