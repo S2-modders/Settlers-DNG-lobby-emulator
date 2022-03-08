@@ -82,10 +82,11 @@ namespace S2Lobby
         public string Description;
         public string Ip;
         public uint Port;
-
         public byte PlayersTotal;
         public byte PlayersJoined;
+        public byte PlayersAi;
         public string Map;
+        public bool Running;
         
         public byte Type;
         public byte SubType;
@@ -94,7 +95,6 @@ namespace S2Lobby
         public byte Level;
         public byte GameMode;
         public bool Hardcore;
-        public bool Running;
         public bool LockedConfig;
         public byte[] Data;
         public bool NeedsPassword;
