@@ -1,4 +1,4 @@
-﻿namespace S2Lobby
+namespace S2Lobby
 {
     public static class Constants
     {

@@ -83,11 +83,12 @@ namespace S2Lobby
         public string Ip;
         public uint Port;
         public byte PlayersTotal;
-        public byte PlayersJoined;
+        //public byte PlayersJoined;
         public byte PlayersAi;
         public string Map;
         public bool Running;
         
+        /*
         public byte Type;
         public byte SubType;
         public ushort MaxPlayers;
@@ -99,7 +100,18 @@ namespace S2Lobby
         public byte[] Data;
         public bool NeedsPassword;
         public string Password;
+        */
 
         public ConcurrentDictionary<uint, uint> Players = new ConcurrentDictionary<uint, uint>();
+
+        public byte GetPlayerCount()
+        {
+            return (byte) Players.Count;
+        }
+
+        public bool IsFull()
+        {
+            return Players.Count + 1 > PlayersTotal;
+        }
     }
 }

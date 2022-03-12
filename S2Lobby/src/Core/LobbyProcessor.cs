@@ -105,8 +105,8 @@ namespace S2Lobby
                 case Payloads.Types.JoinServer:
                     HandleJoinServer((JoinServer) payload, writer);
                     return true;
-                case Payloads.Types.DeregObserverBuddylist:
-                    HandleDeregObserverBuddylist((DeregObserverBuddylist) payload, writer);
+                case Payloads.Types.LeaveServer:
+                    HandleLeaveServer((LeaveServer) payload, writer);
                     return true;
                 
                 // Chat related packages
@@ -362,6 +362,8 @@ namespace S2Lobby
                 SendReply(writer, Payloads.CreateStatusFailMsg("Failed to register server", payload.TicketId));
                 return;
             }
+
+            _server.Players.TryAdd(Account.Id, Connection);
             
             _server.ConnectionId = Connection;
             _server.OwnerId = Account.Id;
@@ -372,7 +374,6 @@ namespace S2Lobby
             _server.Port = payload.Port;
             // TODO implement remaining
             _server.PlayersTotal = payload.PlayersTotal;
-            _server.PlayersJoined = 1;
             _server.PlayersAi = 0;
             _server.Map = payload.Map;
             //_server.Map = "MP_2P_Storm_Coast\vfr_11888";
@@ -532,16 +533,18 @@ namespace S2Lobby
             resultPayload.Ip = server.Ip;
             resultPayload.Port = server.Port;
             resultPayload.MaxPlayers = server.PlayersTotal;
-            resultPayload.CurPlayers = server.PlayersJoined;
+            resultPayload.CurPlayers = server.GetPlayerCount();
             resultPayload.AiPlayers = server.PlayersAi;
             resultPayload.Map = server.Map;
             resultPayload.Running = server.Running;
             resultPayload.TicketId = ticketId;
 
+            /*
             resultPayload.Unknown0 = 0;
             resultPayload.Unknown1 = 11757;
             resultPayload.Unknown2 = "11757";
             resultPayload.Unknown6 = "11757";
+            */
             
             return resultPayload;
         }
@@ -607,7 +610,6 @@ namespace S2Lobby
 
         private void HandleJoinServer(JoinServer payload, PayloadWriter writer)
         {
-            // TODO implement error messages
             /*
              * Error IDs:
              * 0x84 (132): GameServer not found
@@ -621,16 +623,28 @@ namespace S2Lobby
                 return;
             }
 
+            bool full = server.IsFull();
+            
+            // This might be weird, but I need to do this, because client sends LeaveServer when lobby
+            // returns ServerFull error code 
+            
             server.Players.TryAdd(payload.UserId, Connection);
-
             _server = server;
             
-            SendReply(writer, Payloads.CreateStatusOkMsg(payload.TicketId));
+            if (full)
+            {
+                SendReply(writer, Payloads.CreateStatusFailMsg(
+                    0x87, "GameServer is already full", payload.TicketId));
+            }
+            else
+            {
+                SendReply(writer, Payloads.CreateStatusOkMsg(payload.TicketId));   
+            }
         }
 
-        private void HandleDeregObserverBuddylist(DeregObserverBuddylist payload, PayloadWriter writer)
+        private void HandleLeaveServer(LeaveServer payload, PayloadWriter writer)
         {
-            // TODO ?
+            // TODO error messages ?
             if (_server == null)
             {
                 SendReply(writer, Payloads.CreateStatusFailMsg("GameServer does not exist", payload.TicketId));
@@ -707,8 +721,7 @@ namespace S2Lobby
             // TODO
             _server.Name = payload.Name;
             _server.Description = payload.Description;
-            _server.PlayersTotal = payload.PlayersMax;
-            _server.PlayersJoined = (byte) (payload.PlayersJoined + 1); // TODO not really sure about this one
+            _server.PlayersTotal = (byte) (payload.PlayersMax - payload.SlotsOccupied);
             _server.Map = payload.Map;
 
             SendServerUpdates(payload.TicketId);

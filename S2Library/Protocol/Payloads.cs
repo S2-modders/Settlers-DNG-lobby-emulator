@@ -171,7 +171,7 @@ namespace S2Library.Protocol
             UnknownType173 = 173,
             UnknownType174 = 174,
             JoinServer = 175,
-            DeregObserverBuddylist = 176,
+            LeaveServer = 176,
             UpdateServerInfo = 177, // UnknownType177
             UnknownType178 = 178,
             UnknownType179 = 179,
@@ -399,7 +399,7 @@ namespace S2Library.Protocol
             PayloadTypes.Add(typeof(Payload173), Types.UnknownType173);
             PayloadTypes.Add(typeof(Payload174), Types.UnknownType174);
             PayloadTypes.Add(typeof(JoinServer), Types.JoinServer); // Payload175
-            PayloadTypes.Add(typeof(DeregObserverBuddylist), Types.DeregObserverBuddylist); // Payload176
+            PayloadTypes.Add(typeof(LeaveServer), Types.LeaveServer); // Payload176
             PayloadTypes.Add(typeof(UpdateServerInfo), Types.UpdateServerInfo); // Payload177
             PayloadTypes.Add(typeof(Payload178), Types.UnknownType178);
             PayloadTypes.Add(typeof(Payload179), Types.UnknownType179);
@@ -4660,7 +4660,7 @@ namespace S2Library.Protocol
 //    (**(code**)(* piVar1 + 8))("user_id",8);
 //    (**(code**)(* piVar1 + 8))("ticket_id",8);
 //    (**(code**)(* unaff_EDI + 4))(0xb0,piVar1);
-    public class DeregObserverBuddylist : PayloadPrefix // Payload176
+    public class LeaveServer : PayloadPrefix // Payload176 # DeregObserverBuddylist
     {
         public uint UserId;
         public uint TicketId;
@@ -4740,14 +4740,14 @@ namespace S2Library.Protocol
         public string Name;
         public string Description; // ?
         public byte PlayersMax;
-        public byte PlayersJoined; // Ai players ?
+        public byte SlotsOccupied; // Blocked slots either by AI or by closing it
         
         public byte Unknown31;
         public byte Unknown32;
         public byte Unknown33;
         
         public string Map;
-        public bool Running; // ?
+        public bool Running;
         public byte[] Data; // ?
         public uint PropertyMask;
         public uint TicketId;
@@ -4759,7 +4759,7 @@ namespace S2Library.Protocol
             serializer.Serialize(nameof(Name), ref Name);
             serializer.Serialize(nameof(Description), ref Description);
             serializer.Serialize(nameof(PlayersMax), ref PlayersMax);
-            serializer.Serialize(nameof(PlayersJoined), ref PlayersJoined);
+            serializer.Serialize(nameof(SlotsOccupied), ref SlotsOccupied);
             serializer.Serialize(nameof(Unknown31), ref Unknown31);
             serializer.Serialize(nameof(Unknown32), ref Unknown32);
             serializer.Serialize(nameof(Unknown33), ref Unknown33);
