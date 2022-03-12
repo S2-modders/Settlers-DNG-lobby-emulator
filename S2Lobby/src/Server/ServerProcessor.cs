@@ -1,4 +1,4 @@
-﻿using System.Collections.Concurrent;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -54,6 +54,29 @@ namespace S2Lobby
             stream.Close();
         }
 
+        public void SendToLobbyConnection(uint connection, TestPayloadPrefix message)
+        {
+            LobbyProcessor processor = Program.GetLobbyProcessor(connection);
+            if (processor == null)
+            {
+                return;
+            }
+
+            var stream = new MemoryStream();
+            var writer = new BinaryWriter(stream);
+            var payloadWriter = new PayloadWriter(writer);
+
+            message.Serialize(payloadWriter);
+
+            Logger.LogDebug($" --- Payload sending to {connection}: {(Payloads.Types)message.Type} ---");
+            message.Serialize(_Logger);
+
+            processor.SendReply(MessageContainer.Types.ApplicationMessage, stream);
+
+            writer.Close();
+            stream.Close();
+        }
+        
         public void CloseLobbyProcessor(uint connection)
         {
             LobbyProcessor processor = Program.GetLobbyProcessor(connection);

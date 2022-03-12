@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace S2Library.Protocol
@@ -553,6 +553,33 @@ namespace S2Library.Protocol
         }
     }
 
+    public class TestPayloadPrefix
+    {
+        public ushort Magic = 0x27D9;
+        public ushort Type = 201;
+
+        public virtual void Serialize(Serializer serializer)
+        {
+            serializer.Serialize(nameof(Magic), ref Magic);
+            serializer.Serialize(nameof(Type), ref Type);
+        }
+    }
+
+    public class StartGame : TestPayloadPrefix
+    {
+        public uint D1 = 1145582900;
+        public uint D2 = 0xFFFFFFFF;
+        public uint D3 = 1145582900;
+
+        public override void Serialize(Serializer serializer)
+        {
+            base.Serialize(serializer);
+            serializer.Serialize(nameof(D1), ref D1);
+            serializer.Serialize(nameof(D2), ref D2);
+            serializer.Serialize(nameof(D3), ref D3);
+        }
+    }
+    
 //    (**(code**)(* piVar1 + 0x14))();
 //    (**(code**)(* piVar1 + 8))("type",6);
 //    (**(code**)(* piVar1 + 8))("data",8);
