@@ -18,7 +18,7 @@ namespace S2Lobby
         protected byte[] SessionKey;
 
         public static readonly ConcurrentDictionary<uint, uint> GlobalLoginReceivers = new ConcurrentDictionary<uint, uint>();
-        public static readonly ConcurrentDictionary<uint, uint> GlobalUsersOnline = new ConcurrentDictionary<uint, uint>();
+        public static readonly ConcurrentDictionary<uint, Account> GlobalUsersOnline = new ConcurrentDictionary<uint, Account>();
 
         public ServerProcessor(Program program, uint connection) : base(program, connection)
         {
@@ -225,7 +225,7 @@ namespace S2Lobby
                 return;
             }
 
-            GlobalUsersOnline.TryAdd(Connection, Account.Id);
+            GlobalUsersOnline.TryAdd(Connection, Account);
             
             SendReply(writer, Payloads.CreateStatusOkMsg(payload.TicketId));
             
@@ -268,7 +268,7 @@ namespace S2Lobby
                 return;
             }
 
-            GlobalUsersOnline.TryAdd(Connection, Account.Id);
+            GlobalUsersOnline.TryAdd(Connection, Account);
             
             SendReply(writer, Payloads.CreateStatusOkMsg(payload.TicketId));
             

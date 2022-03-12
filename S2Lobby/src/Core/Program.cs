@@ -147,8 +147,8 @@ namespace S2Lobby
                 }
                 else
                 {
-                    uint accountId;
-                    if (ServerProcessor.GlobalUsersOnline.TryRemove(args.Conn.Id, out accountId))
+                    Account UserAccount;
+                    if (ServerProcessor.GlobalUsersOnline.TryRemove(args.Conn.Id, out UserAccount))
                     {
                         uint tAccId;
                         ServerProcessor.GlobalLoginReceivers.TryRemove(args.Conn.Id, out tAccId);
@@ -157,7 +157,7 @@ namespace S2Lobby
                         foreach (KeyValuePair<uint, uint> loginObserver in loginObservers)
                         {
                             var resultPayload = Payloads.CreatePayload<UserLoggedOut>();
-                            resultPayload.UserId = accountId;
+                            resultPayload.UserId = UserAccount.Id;
                             ((ServerProcessor) networkProcessor).SendToLobbyConnection(loginObserver.Key, resultPayload);
                         }
                     }

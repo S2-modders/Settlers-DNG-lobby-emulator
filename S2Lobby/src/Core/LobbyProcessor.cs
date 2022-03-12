@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Runtime.Remoting.Channels;
@@ -579,12 +579,11 @@ namespace S2Lobby
             }
 
             // notify new user about all logged in users
-            foreach (KeyValuePair<uint, uint> userOnline in GlobalUsersOnline.ToArray())
+            foreach (KeyValuePair<uint, Account> userOnline in GlobalUsersOnline.ToArray())
             {
                 var resultPayload = Payloads.CreatePayload<UserLoggedIn>();
-                resultPayload.UserId = userOnline.Value;
-                // TODO sometimes causes crash
-                resultPayload.Name = Program.Accounts.Get(Database.Connection, userOnline.Value).UserName;
+                resultPayload.UserId = userOnline.Value.Id;
+                resultPayload.Name = userOnline.Value.UserName;
                 SendReply(writer, resultPayload);
             }
         }
