@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 
 namespace S2Library.Protocol
@@ -4490,18 +4490,18 @@ namespace S2Library.Protocol
         public string Description;
         public string Ip;
         public uint Port;
+        public byte Unknown0;
         public uint Unknown1;
-        public byte Unknown11;
         public string Unknown2;
-        public byte PlayersTotal;
-        public byte PlayersJoined;
-        public byte PlayersAi;
+        public byte MaxPlayers;
+        public byte CurPlayers;
+        public byte AiPlayers;
         public byte Unknown3;
         public byte Unknown4;
         public byte Unknown5;
         public string Map;
         public bool Running;
-        public uint Unknown6;
+        public string Unknown6;
         public uint TicketId;
         public byte[] data; // for debugging only
         
@@ -4517,13 +4517,13 @@ namespace S2Library.Protocol
             serializer.Serialize(nameof(Ip), ref Ip);
             serializer.Serialize(nameof(Port), ref Port);
             
+            serializer.Serialize(nameof(Unknown0), ref Unknown0);
             serializer.Serialize(nameof(Unknown1), ref Unknown1);
-            serializer.Serialize(nameof(Unknown11), ref Unknown11);
             serializer.Serialize(nameof(Unknown2), ref Unknown2);
 
-            serializer.Serialize(nameof(PlayersTotal), ref PlayersTotal);
-            serializer.Serialize(nameof(PlayersJoined), ref PlayersJoined);
-            serializer.Serialize(nameof(PlayersAi), ref PlayersAi);
+            serializer.Serialize(nameof(MaxPlayers), ref MaxPlayers);
+            serializer.Serialize(nameof(CurPlayers), ref CurPlayers);
+            serializer.Serialize(nameof(AiPlayers), ref AiPlayers);
 
             serializer.Serialize(nameof(Unknown3), ref Unknown3);
             serializer.Serialize(nameof(Unknown4), ref Unknown4);

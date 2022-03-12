@@ -375,6 +375,7 @@ namespace S2Lobby
             _server.PlayersJoined = 1;
             _server.PlayersAi = 0;
             _server.Map = payload.Map;
+            //_server.Map = "MP_2P_Storm_Coast\vfr_11888";
             _server.Running = false;
             
             SendServerUpdates(payload.TicketId);
@@ -511,9 +512,9 @@ namespace S2Lobby
             resultPayload.Description = "description";
             resultPayload.Ip = "192.168.8.20";
             resultPayload.Port = 5479;
-            resultPayload.PlayersTotal = 6;
-            resultPayload.PlayersJoined = 2;
-            resultPayload.PlayersAi = 1;
+            resultPayload.MaxPlayers = 6;
+            resultPayload.CurPlayers = 2;
+            resultPayload.AiPlayers = 1;
             resultPayload.Map = "MP_2P_Storm_Coast\vde_11757";
             resultPayload.Running = false;
             resultPayload.TicketId = ticketId;
@@ -523,19 +524,25 @@ namespace S2Lobby
         
         private static GameServerData CreateServerInfoPayload(Server server, uint ticketId)
         {
-            GameServerData resultPayload = Payloads.CreatePayload<GameServerData>();
+            var resultPayload = Payloads.CreatePayload<GameServerData>();
             resultPayload.ServerId = server.Id;
             resultPayload.OwnerId = server.OwnerId;
             resultPayload.Name = server.Name;
             resultPayload.Description = server.Description;
             resultPayload.Ip = server.Ip;
             resultPayload.Port = server.Port;
-            resultPayload.PlayersTotal = server.PlayersTotal;
-            resultPayload.PlayersJoined = server.PlayersJoined;
-            resultPayload.PlayersAi = server.PlayersAi;
+            resultPayload.MaxPlayers = server.PlayersTotal;
+            resultPayload.CurPlayers = server.PlayersJoined;
+            resultPayload.AiPlayers = server.PlayersAi;
             resultPayload.Map = server.Map;
             resultPayload.Running = server.Running;
             resultPayload.TicketId = ticketId;
+
+            resultPayload.Unknown0 = 0;
+            resultPayload.Unknown1 = 11757;
+            resultPayload.Unknown2 = "11757";
+            resultPayload.Unknown6 = "11757";
+            
             return resultPayload;
         }
 
@@ -791,7 +798,7 @@ namespace S2Lobby
              * 0xE (14): StartGameServer 
              */
             Thread.Sleep(1000);
-            SendReply(writer, Payloads.CreateStatusOkMsg(payload.TicketId));
+            //SendReply(writer, Payloads.CreateStatusOkMsg(payload.TicketId));
             
             switch (payload.TicketId)
             {
@@ -812,6 +819,7 @@ namespace S2Lobby
                         return;
                     }
                     server.Running = payload.Running;
+                    //server.Running = true;
 
                     var startGameServer = Payloads.CreateStatusOkMsg(payload.TicketId);
                     UnlistServer unlistInfo = Payloads.CreatePayload<UnlistServer>();
@@ -828,13 +836,17 @@ namespace S2Lobby
                         statusIdOk.Id = server.Id;
                         statusIdOk.TicketId = payload.TicketId;
                         
-                        SendToLobbyConnection(player.Value, statusIdOk);
-                        SendToLobbyConnection(player.Value, Payloads.CreateStatusOkMsg(payload.TicketId));
+                        //SendToLobbyConnection(player.Value, statusIdOk);
+                        //SendToLobbyConnection(player.Value, Payloads.CreateStatusOkMsg(payload.TicketId));
+                        //SendToLobbyConnection(player.Value, new StartGame());
+
+                        var gameServerData = CreateServerInfoPayload(server, payload.TicketId);
+                        SendToLobbyConnection(player.Value, gameServerData);
                     }
                     //SendServerUpdates(payload.TicketId, server);
                     break;
             }
-            //SendReply(writer, Payloads.CreateStatusOkMsg(payload.TicketId));
+            SendReply(writer, Payloads.CreateStatusOkMsg(payload.TicketId));
         }
         
         private void SendServerUpdates(uint ticketId = 0, Server server = null)
