@@ -2,6 +2,7 @@ namespace S2Lobby
 {
     public static class Constants
     {
+        public const uint Patchlevel = 11757;
         public const uint VersionMaj = 0;
         public const uint VersionMin = 1;
         public static string VERSION = "v"+VersionMaj+"."+VersionMin+"-alpha 2022";
