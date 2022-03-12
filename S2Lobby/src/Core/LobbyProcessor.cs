@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Runtime.Remoting.Channels;
@@ -15,6 +15,7 @@ namespace S2Lobby
         private readonly byte[] _nicknameData = Crypto.BytesFromHexString("000000003900000000000000000000000000000000000000a2000000785edbc9c8800cd880b8842195a1184c1631e000ff819891094508668e438300886265604788beb8ce644b0c8d0d1c05004a9b0ff3");
 
         private Server _server;
+        private uint _joinedServerId = 0;
         private static readonly ConcurrentDictionary<uint, uint> ServerUpdateReceivers = new ConcurrentDictionary<uint, uint>();
         private static readonly ConcurrentDictionary<uint, uint> GlobalChatReceivers = new ConcurrentDictionary<uint, uint>();
 
@@ -383,8 +384,6 @@ namespace S2Lobby
             //_server.Map = "MP_2P_Storm_Coast\vfr_11888";
             _server.Running = false;
             
-            SendServerUpdates(payload.TicketId);
-
             var resultPayload = Payloads.CreatePayload<StatusWithId>();
             resultPayload.Errorcode = 0;
             resultPayload.Errormsg = null;
@@ -392,6 +391,8 @@ namespace S2Lobby
             resultPayload.TicketId = payload.TicketId;
             SendReply(writer, resultPayload);
             
+            SendServerUpdates(payload.TicketId);
+
             Logger.Log($"User {Account.UserName} created a new lobby as {payload.Name}");
         }
         private void HandleRegisterServerOld(RegisterServer payload, PayloadWriter writer)
@@ -478,17 +479,12 @@ namespace S2Lobby
             uint ticketId = payload.TicketId;
             foreach (Server server in servers)
             {
-                GameServerData resultPayload1 = CreateServerInfoPayload(server, ticketId);
-                SendReply(writer, resultPayload1);
+                SendReply(writer, CreateServerInfoPayload(server, ticketId));
             }
 
             //ServerListTest(writer, payload.TicketId);
             
-            ResultStatusMsg resultPayload2 = Payloads.CreatePayload<ResultStatusMsg>();
-            resultPayload2.Errorcode = 0;
-            resultPayload2.Errormsg = null;
-            resultPayload2.TicketId = payload.TicketId;
-            SendReply(writer, resultPayload2);
+            SendReply(writer, Payloads.CreateStatusOkMsg(payload.TicketId));
         }
 
         private void ServerListTest(PayloadWriter writer, uint ticketId)
@@ -626,35 +622,39 @@ namespace S2Lobby
                 return;
             }
 
-            bool full = server.IsFull();
-            
-            // This might be weird, but I need to do this, because client sends LeaveServer when lobby
-            // returns ServerFull error code 
-            
-            server.Players.TryAdd(payload.UserId, Connection);
-            _server = server;
-            
-            if (full)
+            if (server.IsFull())
             {
                 SendReply(writer, Payloads.CreateStatusFailMsg(
                     0x87, "GameServer is already full", payload.TicketId));
             }
             else
             {
-                SendReply(writer, Payloads.CreateStatusOkMsg(payload.TicketId));   
+                if (server.Players.TryAdd(Account.Id, Connection))
+                {
+                    _joinedServerId = server.Id;
+                    SendReply(writer, Payloads.CreateStatusOkMsg(payload.TicketId));    
+                }
+                else
+                {
+                    SendReply(writer, Payloads.CreateStatusFailMsg(
+                        0x84, "Failed to add player to server", payload.TicketId));
+                }
             }
         }
 
         private void HandleLeaveServer(LeaveServer payload, PayloadWriter writer)
         {
             // TODO error messages ?
-            if (_server == null)
+            Server server = Program.Servers.Get(_joinedServerId);
+            if (server == null)
             {
-                SendReply(writer, Payloads.CreateStatusFailMsg("GameServer does not exist", payload.TicketId));
+                SendReply(writer, Payloads.CreateStatusFailMsg("User has not joined any server", payload.TicketId));
                 return;
             }
+
             uint connection;
-            _server.Players.TryRemove(payload.UserId, out connection);
+            server.Players.TryRemove(Account.Id, out connection);
+            _joinedServerId = 0;
             
             SendReply(writer, Payloads.CreateStatusOkMsg(payload.TicketId));
         }
@@ -813,8 +813,6 @@ namespace S2Lobby
              * 0xB (11): RemoveGameServer
              * 0xE (14): StartGameServer 
              */
-            Thread.Sleep(1000);
-            //SendReply(writer, Payloads.CreateStatusOkMsg(payload.TicketId));
             
             switch (payload.TicketId)
             {
@@ -828,6 +826,8 @@ namespace S2Lobby
                     }
                     break;
                 case 14:
+                    Thread.Sleep(1000);
+                    
                     Server server = Program.Servers.Get(payload.ServerId);
                     if (server == null)
                     {
@@ -835,27 +835,10 @@ namespace S2Lobby
                         return;
                     }
                     server.Running = payload.Running;
-                    //server.Running = true;
-
-                    var startGameServer = Payloads.CreateStatusOkMsg(payload.TicketId);
-                    UnlistServer unlistInfo = Payloads.CreatePayload<UnlistServer>();
-                    unlistInfo.ServerId = payload.ServerId;
-                    unlistInfo.Running = payload.Running;
-                    unlistInfo.TicketId = payload.TicketId;
 
                     KeyValuePair<uint, uint>[] players = server.Players.ToArray();
                     foreach (KeyValuePair<uint, uint> player in players)
                     {
-                        var statusIdOk = Payloads.CreatePayload<StatusWithId>();
-                        statusIdOk.Errorcode = 0;
-                        statusIdOk.Errormsg = null;
-                        statusIdOk.Id = server.Id;
-                        statusIdOk.TicketId = payload.TicketId;
-                        
-                        //SendToLobbyConnection(player.Value, statusIdOk);
-                        //SendToLobbyConnection(player.Value, Payloads.CreateStatusOkMsg(payload.TicketId));
-                        //SendToLobbyConnection(player.Value, new StartGame());
-
                         var gameServerData = CreateServerInfoPayload(server, payload.TicketId);
                         SendToLobbyConnection(player.Value, gameServerData);
                     }

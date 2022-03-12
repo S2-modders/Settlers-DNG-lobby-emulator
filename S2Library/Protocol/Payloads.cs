@@ -615,7 +615,7 @@ namespace S2Library.Protocol
             serializer.Serialize(nameof(Mode), ref Mode);
             serializer.Serialize(nameof(Txt), ref Txt);
             serializer.Serialize(nameof(TicketId), ref TicketId);
-            serializer.Serialize(nameof(FromId), ref FromId);
+            //serializer.Serialize(nameof(FromId), ref FromId);
         }
     }
 
@@ -4642,14 +4642,14 @@ namespace S2Library.Protocol
 //    (**(code**)(* unaff_EDI + 4))(0xaf,piVar1);
     public class JoinServer : PayloadPrefix // Payload175 # RegObserverBuddylist
     {
-        public uint UserId;
+        public uint Unknown;
         public uint ServerId;
         public uint TicketId;
 
         public override void Serialize(Serializer serializer, bool fullHeader = true)
         {
             base.Serialize(serializer, fullHeader);
-            serializer.Serialize(nameof(UserId), ref UserId);
+            serializer.Serialize(nameof(Unknown), ref Unknown);
             serializer.Serialize(nameof(ServerId), ref ServerId);
             serializer.Serialize(nameof(TicketId), ref TicketId);
         }
@@ -4662,13 +4662,13 @@ namespace S2Library.Protocol
 //    (**(code**)(* unaff_EDI + 4))(0xb0,piVar1);
     public class LeaveServer : PayloadPrefix // Payload176 # DeregObserverBuddylist
     {
-        public uint UserId;
+        public uint Unknown;
         public uint TicketId;
 
         public override void Serialize(Serializer serializer, bool fullHeader = true)
         {
             base.Serialize(serializer, fullHeader);
-            serializer.Serialize(nameof(UserId), ref UserId);
+            serializer.Serialize(nameof(Unknown), ref Unknown);
             serializer.Serialize(nameof(TicketId), ref TicketId);
         }
     }
