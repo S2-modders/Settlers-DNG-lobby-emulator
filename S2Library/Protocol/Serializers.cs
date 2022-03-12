@@ -80,7 +80,8 @@ namespace S2Library.Protocol
             if (length > 0)
             {
                 byte[] textBytes = _reader.ReadBytes(length);
-                data = Encoding.ASCII.GetString(textBytes);
+                //data = Encoding.ASCII.GetString(textBytes);
+                data = Encoding.GetEncoding("ISO-8859-15").GetString(textBytes);
             }
             else
             {
@@ -157,7 +158,8 @@ namespace S2Library.Protocol
             }
             else
             {
-                byte[] bytes = Encoding.ASCII.GetBytes(data + "\0");
+                //byte[] bytes = Encoding.ASCII.GetBytes(data + "\0");
+                byte[] bytes = Encoding.GetEncoding("ISO-8859-15").GetBytes(data + "\0");
                 int length = bytes.Length;
                 _writer.Write(length);
                 _writer.Write(bytes);
