@@ -68,12 +68,12 @@
     {
       "offset": 104,
       "length": 4,
-      "text": "unknown"
+      "text": "unknown string"
     },
     {
       "offset": 108,
       "length": 4,
-      "text": "ticket id (?)"
+      "text": "ticket id"
     }
   ],
   "highlights": [],
