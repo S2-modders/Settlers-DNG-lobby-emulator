@@ -661,8 +661,8 @@ namespace S2Library.Protocol
     public class RequestLogin : PayloadPrefix // Payload4
     {
         public string Nick;
-        public string Password;
-        public string CdKey;
+        public byte[] Password;
+        public byte[] CdKey;
         public ushort Keypool;
         public uint Patchlevel;
         public uint TicketId;
@@ -2311,8 +2311,8 @@ namespace S2Library.Protocol
     public class RequestCreateAccount : PayloadPrefix // Payload71
     {
         public string Nick;
-        public string Password;
-        public string CdKey;
+        public byte[] Password;
+        public byte[] CdKey;
         public ushort Keypool;
         public uint Patchlevel;
         public uint TicketId;

@@ -1,4 +1,4 @@
-﻿using System.Collections.Concurrent;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -202,17 +202,23 @@ namespace S2Lobby
              * 0x3D: auth failed
              * 0x3E: wrong version
              */
+            
+            if (payload.Patchlevel != Constants.Patchlevel)
+            {
+                SendReply(writer, Payloads.CreateStatusFailMsg(
+                    0x3E, "Patchlevel does not match", payload.TicketId));
+                return;
+            }
+            
             Account = Program.Accounts.Get(Database.Connection, payload.Nick);
             if (Account == null)
             {
-                // we use 1B as a replacement for this error
                 SendReply(writer, Payloads.CreateStatusFailMsg(
-                    0x1B, "Account not found", payload.TicketId));
+                    0x3D, "Username does not exist", payload.TicketId));
                 return;
             }
-
-            byte[] password = Encoding.ASCII.GetBytes(payload.Password);
-            if (!Serializer.CompareArrays(password, Account.Password))
+            
+            if (!Serializer.CompareArrays(payload.Password, Account.Password))
             {
                 SendReply(writer, Payloads.CreateStatusFailMsg(
                     0x3D, "Wrong password", payload.TicketId));
@@ -237,12 +243,15 @@ namespace S2Lobby
              * 0x29: user already exists
              * 0x3E: wrong version
              */
-            
-            byte[] password = Encoding.ASCII.GetBytes(payload.Password);
-            // TODO: cdKey is broken, FIXME
-            byte[] cdKey = Encoding.ASCII.GetBytes(payload.CdKey);
 
-            uint res = Program.Accounts.Create(Database.Connection, payload.Nick, password, cdKey);
+            if (payload.Patchlevel != Constants.Patchlevel)
+            {
+                SendReply(writer, Payloads.CreateStatusFailMsg(
+                    0x3E, "Patchlevel does not match", payload.TicketId));
+                return;
+            }
+            
+            uint res = Program.Accounts.Create(Database.Connection, payload.Nick, payload.Password, payload.CdKey);
             if (res == 0)
             {
                 SendReply(writer, Payloads.CreateStatusFailMsg(
