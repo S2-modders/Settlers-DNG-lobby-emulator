@@ -3134,7 +3134,7 @@ namespace S2Library.Protocol
 //    (**(code**)(* unaff_EDI + 4))(0x6a,piVar1);
     public class SendMOTD : PayloadPrefix // Payload106
     {
-        public string Txt;
+        public byte[] Txt;
         public uint TicketId;
 
         public override void Serialize(Serializer serializer, bool fullHeader = true)

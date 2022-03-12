@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Runtime.Remoting.Channels;
+using System.Text;
 using System.Threading;
 using Microsoft.VisualBasic.Logging;
 using S2Library.Protocol;
@@ -217,9 +218,12 @@ namespace S2Lobby
 
         private void HandleGetMOTD(RequestMOTD payload, PayloadWriter writer)
         {
-            SendMOTD resultPayload = Payloads.CreatePayload<SendMOTD>();
+            // For whatever reason MOTD is encoded as UTF-8
+            byte[] motd = Encoding.UTF8.GetBytes(
+                Constants.MOTD.Replace("%name%", Account.GetUserNameStripped()));
             
-            resultPayload.Txt = Constants.MOTD.Replace("%name%", Account.GetUserNameStripped());
+            SendMOTD resultPayload = Payloads.CreatePayload<SendMOTD>();
+            resultPayload.Txt = motd;
             resultPayload.TicketId = payload.TicketId;
             SendReply(writer, resultPayload);
         }
