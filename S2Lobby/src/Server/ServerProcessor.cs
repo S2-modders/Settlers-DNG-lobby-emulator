@@ -224,29 +224,8 @@ namespace S2Lobby
             SendReply(writer, Payloads.CreateStatusOkMsg(payload.TicketId));
             
             Logger.Log($"User {Account.UserName} logged in");
-
-            // send login info to all users
-            foreach (KeyValuePair<uint, uint> loginObserver in GlobalLoginReceivers.ToArray())
-            {
-                var resultPayload = Payloads.CreatePayload<UserLoggedIn>();
-                resultPayload.UserId = Account.Id;
-                resultPayload.Name = Account.UserName;
-                
-                SendToLobbyConnection(loginObserver.Key, resultPayload);
-            }
-        }
-        
-        private void HandleLogin(Login payload, PayloadWriter writer)
-        {
-            byte[] loginKey = payload.Key;
-
-            _sharedSecret = Crypto.CreateSecretKey();
-            byte[] result = Crypto.HandleKey(loginKey, _sharedSecret);
-
-            LoginReply resultPayload = Payloads.CreatePayload<LoginReply>();
-            resultPayload.Cipher = result;
-            resultPayload.TicketId = payload.TicketId;
-            SendReply(writer, resultPayload);
+            
+            NotifyLoginReceivers(Account.Id, Account.UserName);
         }
 
         private void HandleCreateAccount(RequestCreateAccount payload, PayloadWriter writer)
@@ -279,10 +258,39 @@ namespace S2Lobby
                     0x1A, "Account not created", payload.TicketId));
                 return;
             }
+
+            GlobalUsersOnline.TryAdd(Connection, Account.Id);
             
             SendReply(writer, Payloads.CreateStatusOkMsg(payload.TicketId));
             
             Logger.Log($"User {Account.UserName} has registered");
+            
+            NotifyLoginReceivers(Account.Id, Account.UserName);
+        }
+
+        private void NotifyLoginReceivers(uint userId, string userName)
+        {
+            foreach (KeyValuePair<uint, uint> loginObserver in GlobalLoginReceivers.ToArray())
+            {
+                var resultPayload = Payloads.CreatePayload<UserLoggedIn>();
+                resultPayload.UserId = userId;
+                resultPayload.Name = userName;
+                
+                SendToLobbyConnection(loginObserver.Key, resultPayload);
+            }
+        }
+        
+        private void HandleLogin(Login payload, PayloadWriter writer)
+        {
+            byte[] loginKey = payload.Key;
+
+            _sharedSecret = Crypto.CreateSecretKey();
+            byte[] result = Crypto.HandleKey(loginKey, _sharedSecret);
+
+            LoginReply resultPayload = Payloads.CreatePayload<LoginReply>();
+            resultPayload.Cipher = result;
+            resultPayload.TicketId = payload.TicketId;
+            SendReply(writer, resultPayload);
         }
         
         private void HandleRegisterUser(RegisterUser payload, PayloadWriter writer)
