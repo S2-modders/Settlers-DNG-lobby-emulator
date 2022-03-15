@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Runtime.Remoting.Channels;
@@ -837,7 +837,7 @@ namespace S2Lobby
                     server.Running = payload.Running;
 
                     KeyValuePair<uint, uint>[] players = server.Players.ToArray();
-                    foreach (KeyValuePair<uint, uint> player in players)
+                    foreach (var player in players)
                     {
                         var gameServerData = CreateServerInfoPayload(server, payload.TicketId);
                         SendToLobbyConnection(player.Value, gameServerData);
