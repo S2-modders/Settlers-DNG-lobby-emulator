@@ -12,28 +12,15 @@ Tincat version used: 3.0.53
 - [x] show online status of other players
 - [x] global chat with properly working usernames
 - [x] error messages when auth or account creation failed
-- [ ] create new game
-- [ ] see all created games
-- [ ] join new game
-- [ ] launch new lobby with other players
+- [x] create new game
+- [x] join new game
+- [x] launch new lobby with other players
+- [ ] see all created games with default filter
+- [ ] automatic hole punching to bypass port forwarding issues
 
-### Usage [outdated - TODO]
+### Usage
 
-In the directory of the executable write the public IP of the lobby server into ip.cfg file.
-
-1. run game
-2. go multi player
-3. create account
-4. log in
-5. make nickname
-6. make charactor
-7. enter lobby
-8. run server, example in starts2gs.cmd file
-9. refresh server list in lobby
-10. join game
-11. play
-
-The server hosting needs an account, but may use the same credentials like the player accounts.
+// TODO
 
 ### Credits
 
