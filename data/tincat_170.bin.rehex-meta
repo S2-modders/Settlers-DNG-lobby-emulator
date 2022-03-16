@@ -18,12 +18,12 @@
     {
       "offset": 19,
       "length": 4,
-      "text": "owner id (?)"
+      "text": "owner id"
     },
     {
       "offset": 23,
       "length": 5,
-      "text": "description (?)"
+      "text": "description"
     },
     {
       "offset": 28,
@@ -36,9 +36,19 @@
       "text": "port"
     },
     {
+      "offset": 49,
+      "length": 1,
+      "text": "server type"
+    },
+    {
+      "offset": 50,
+      "length": 4,
+      "text": "lobby id"
+    },
+    {
       "offset": 54,
       "length": 12,
-      "text": "unused version string (?)"
+      "text": "version string"
     },
     {
       "offset": 66,
@@ -56,6 +66,21 @@
       "text": "ai players"
     },
     {
+      "offset": 69,
+      "length": 1,
+      "text": "level"
+    },
+    {
+      "offset": 70,
+      "length": 1,
+      "text": "game mode"
+    },
+    {
+      "offset": 71,
+      "length": 1,
+      "text": "hardcore"
+    },
+    {
       "offset": 72,
       "length": 31,
       "text": "map name"
@@ -68,7 +93,7 @@
     {
       "offset": 104,
       "length": 4,
-      "text": "unknown string"
+      "text": "data"
     },
     {
       "offset": 108,
