@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Runtime.Remoting.Channels;
@@ -374,10 +374,9 @@ namespace S2Lobby
             _server.OwnerId = Account.Id;
             _server.Description = payload.Description;
             //_server.Ip = "192.168.8.20"; // TODO get ip from connection if possible
-            _server.Ip = Config.Get("lobby/ip");
-            //_server.Ip = payload.Ip ?? Config.Get("lobby/ip");
-            _server.Port = payload.Port;
-            // TODO implement remaining
+            _server.Ip = Config.Get("host/ip");
+            //_server.Port = payload.Port;
+            _server.Port = Config.GetInt("host/port");
             _server.PlayersTotal = payload.PlayersTotal;
             _server.PlayersAi = 0;
             _server.Map = payload.Map;
