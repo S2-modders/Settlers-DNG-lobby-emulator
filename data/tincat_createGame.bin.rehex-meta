@@ -38,7 +38,7 @@
     {
       "offset": 292,
       "length": 5,
-      "text": "description (?)"
+      "text": "description"
     },
     {
       "offset": 297,
@@ -47,18 +47,43 @@
     },
     {
       "offset": 301,
-      "length": 5,
-      "text": "unknown"
+      "length": 1,
+      "text": "server type"
+    },
+    {
+      "offset": 302,
+      "length": 4,
+      "text": "lobby id"
     },
     {
       "offset": 306,
       "length": 5,
-      "text": "unknown"
+      "text": "version string"
     },
     {
       "offset": 311,
       "length": 1,
       "text": "max players"
+    },
+    {
+      "offset": 312,
+      "length": 1,
+      "text": "ai players"
+    },
+    {
+      "offset": 313,
+      "length": 1,
+      "text": "level"
+    },
+    {
+      "offset": 314,
+      "length": 1,
+      "text": "game mode"
+    },
+    {
+      "offset": 315,
+      "length": 1,
+      "text": "hardcore"
     },
     {
       "offset": 316,
@@ -67,8 +92,13 @@
     },
     {
       "offset": 347,
-      "length": 5,
-      "text": "unknown"
+      "length": 1,
+      "text": "automatic join"
+    },
+    {
+      "offset": 348,
+      "length": 4,
+      "text": "data"
     },
     {
       "offset": 352,

@@ -48,7 +48,12 @@
     {
       "offset": 74,
       "length": 4,
-      "text": "room id"
+      "text": "lobby id"
+    },
+    {
+      "offset": 78,
+      "length": 4,
+      "text": "selection"
     },
     {
       "offset": 82,

@@ -4335,26 +4335,20 @@ namespace S2Library.Protocol
 
     public class RegisterServer : PayloadPrefix // Payload168 # AddGameServer
     {
-        // TODO: this is just guessed
         public string Name;
-        public string Description; // (?)
+        public string Description;
         public uint Port;
-        
-        public uint Unknown1;
-        public byte Unknown11;
-        
-        public uint Unknown2;
-        public byte Unknown21;
-
-        public byte PlayersTotal;
-        
-        public uint Unknown3;
-
+        public byte ServerType;
+        public uint LobbyId;
+        public string Version;
+        public byte MaxPlayers;
+        public byte AiPlayers;
+        public byte Level;
+        public byte GameMode;
+        public bool Hardcore;
         public string Map;
-        
-        public uint Unknown4;
-        public byte Unknown41;
-
+        public bool AutomaticJoin;
+        public byte[] Data;
         public uint TicketId;
 
         public override void Serialize(Serializer serializer, bool fullHeader = true)
@@ -4363,15 +4357,17 @@ namespace S2Library.Protocol
             serializer.Serialize(nameof(Name), ref Name);
             serializer.Serialize(nameof(Description), ref Description);
             serializer.Serialize(nameof(Port), ref Port);
-            serializer.Serialize(nameof(Unknown1), ref Unknown1);
-            serializer.Serialize(nameof(Unknown11), ref Unknown11);
-            serializer.Serialize(nameof(Unknown2), ref Unknown2);
-            serializer.Serialize(nameof(Unknown21), ref Unknown21);
-            serializer.Serialize(nameof(PlayersTotal), ref PlayersTotal);
-            serializer.Serialize(nameof(Unknown3), ref Unknown3);
+            serializer.Serialize(nameof(ServerType), ref ServerType);
+            serializer.Serialize(nameof(LobbyId), ref LobbyId);
+            serializer.Serialize(nameof(Version), ref Version);
+            serializer.Serialize(nameof(MaxPlayers), ref MaxPlayers);
+            serializer.Serialize(nameof(AiPlayers), ref AiPlayers);
+            serializer.Serialize(nameof(Level), ref Level);
+            serializer.Serialize(nameof(GameMode), ref GameMode);
+            serializer.Serialize(nameof(Hardcore), ref Hardcore);
             serializer.Serialize(nameof(Map), ref Map);
-            serializer.Serialize(nameof(Unknown4), ref Unknown4);
-            serializer.Serialize(nameof(Unknown41), ref Unknown41);
+            serializer.Serialize(nameof(AutomaticJoin), ref AutomaticJoin);
+            serializer.Serialize(nameof(Data), ref Data);
             serializer.Serialize(nameof(TicketId), ref TicketId);
         }
     }
@@ -4497,12 +4493,14 @@ namespace S2Library.Protocol
         public byte AiPlayers;
         public byte Level;
         public byte GameMode;
-        public byte Hardcore;
+        public bool Hardcore;
         public string Map;
         public bool Running;
         public byte[] Data;
         public uint TicketId;
 
+        public byte[] debug;
+        
         public override void Serialize(Serializer serializer, bool fullHeader = true)
         {
             base.Serialize(serializer, fullHeader);
@@ -4543,11 +4541,8 @@ namespace S2Library.Protocol
     {
         public bool SendAll;
         public byte ServerType;
-        public uint RoomId;
-        public byte Level;
-        public byte GameMode;
-        public byte Hardcore;
-        public byte Selection; // TODO: this was changed from uint to byte
+        public uint LobbyId;
+        public uint Selection;
         public uint TicketId;
 
         public override void Serialize(Serializer serializer, bool fullHeader = true)
@@ -4555,10 +4550,7 @@ namespace S2Library.Protocol
             base.Serialize(serializer, fullHeader);
             serializer.Serialize(nameof(SendAll), ref SendAll);
             serializer.Serialize(nameof(ServerType), ref ServerType);
-            serializer.Serialize(nameof(RoomId), ref RoomId);
-            serializer.Serialize(nameof(Level), ref Level);
-            serializer.Serialize(nameof(GameMode), ref GameMode);
-            serializer.Serialize(nameof(Hardcore), ref Hardcore);
+            serializer.Serialize(nameof(LobbyId), ref LobbyId);
             serializer.Serialize(nameof(Selection), ref Selection);
             serializer.Serialize(nameof(TicketId), ref TicketId);
         }
@@ -4585,11 +4577,15 @@ namespace S2Library.Protocol
 //    (**(code**)(* unaff_EDI + 4))(0xad,piVar1);
     public class Payload173 : PayloadPrefix
     {
+        public uint PermissionId;
+        public uint GameServerId;
         public uint TicketId;
 
         public override void Serialize(Serializer serializer, bool fullHeader = true)
         {
             base.Serialize(serializer, fullHeader);
+            serializer.Serialize(nameof(PermissionId), ref PermissionId);
+            serializer.Serialize(nameof(GameServerId), ref GameServerId);
             serializer.Serialize(nameof(TicketId), ref TicketId);
         }
     }
@@ -4725,20 +4721,17 @@ namespace S2Library.Protocol
 
     public class UpdateServerInfo : PayloadPrefix // Payload177 # ChangeGameServer
     {
-        // TODO
         public uint ServerId;
         public string Name;
-        public string Description; // ?
-        public byte PlayersMax;
-        public byte SlotsOccupied; // Blocked slots either by AI or by closing it
-        
-        public byte Unknown31;
-        public byte Unknown32;
-        public byte Unknown33;
-        
+        public string Description;
+        public byte MaxPlayers;
+        public byte SlotsOccupied; // Blocked slots either by AI or by closing it # AiPlayers
+        public byte Level;
+        public byte GameMode;
+        public bool Hardcore;
         public string Map;
         public bool Running;
-        public byte[] Data; // ?
+        public byte[] Data;
         public uint PropertyMask;
         public uint TicketId;
 
@@ -4748,11 +4741,11 @@ namespace S2Library.Protocol
             serializer.Serialize(nameof(ServerId), ref ServerId);
             serializer.Serialize(nameof(Name), ref Name);
             serializer.Serialize(nameof(Description), ref Description);
-            serializer.Serialize(nameof(PlayersMax), ref PlayersMax);
+            serializer.Serialize(nameof(MaxPlayers), ref MaxPlayers);
             serializer.Serialize(nameof(SlotsOccupied), ref SlotsOccupied);
-            serializer.Serialize(nameof(Unknown31), ref Unknown31);
-            serializer.Serialize(nameof(Unknown32), ref Unknown32);
-            serializer.Serialize(nameof(Unknown33), ref Unknown33);
+            serializer.Serialize(nameof(Level), ref Level);
+            serializer.Serialize(nameof(GameMode), ref GameMode);
+            serializer.Serialize(nameof(Hardcore), ref Hardcore);
             serializer.Serialize(nameof(Map), ref Map);
             serializer.Serialize(nameof(Running), ref Running);
             serializer.Serialize(nameof(Data), ref Data);

@@ -76,31 +76,26 @@ namespace S2Lobby
     public class Server
     {
         public uint Id;
-        public string Name;
         public uint ConnectionId;
         public uint OwnerId;
-        public string Description;
         public string Ip;
-        public uint Port;
-        public byte PlayersTotal;
-        //public byte PlayersJoined;
-        public byte PlayersAi;
-        public string Map;
         public bool Running;
         
-        /*
-        public byte Type;
-        public byte SubType;
-        public ushort MaxPlayers;
-        public uint RoomId;
+        public string Name;
+        public string Description;
+        public uint Port;
+        public byte ServerType;
+        public uint LobbyId;
+        public string Version;
+        public byte MaxPlayers;
+        public byte AiPlayers;
         public byte Level;
         public byte GameMode;
         public bool Hardcore;
-        public bool LockedConfig;
+        public string Map;
+        public bool AutomaticJoin;
         public byte[] Data;
-        public bool NeedsPassword;
-        public string Password;
-        */
+        public uint PropertyMask;
 
         public ConcurrentDictionary<uint, uint> Players = new ConcurrentDictionary<uint, uint>();
 
@@ -111,7 +106,7 @@ namespace S2Lobby
 
         public bool IsFull()
         {
-            return Players.Count + 1 > PlayersTotal;
+            return Players.Count + 1 > MaxPlayers;
         }
     }
 }

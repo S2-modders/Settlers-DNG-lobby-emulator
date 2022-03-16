@@ -33,7 +33,7 @@
     {
       "offset": 53,
       "length": 5,
-      "text": "??"
+      "text": "description"
     },
     {
       "offset": 58,
@@ -43,12 +43,22 @@
     {
       "offset": 59,
       "length": 1,
-      "text": "curr players"
+      "text": "ai players"
     },
     {
       "offset": 60,
       "length": 1,
-      "text": "ai players"
+      "text": "level"
+    },
+    {
+      "offset": 61,
+      "length": 1,
+      "text": "game mode"
+    },
+    {
+      "offset": 62,
+      "length": 1,
+      "text": "hardcore"
     },
     {
       "offset": 63,
@@ -57,13 +67,18 @@
     },
     {
       "offset": 94,
-      "length": 5,
-      "text": "unknown"
+      "length": 1,
+      "text": "running"
+    },
+    {
+      "offset": 95,
+      "length": 4,
+      "text": "data"
     },
     {
       "offset": 99,
       "length": 4,
-      "text": "unknown"
+      "text": "property mask"
     },
     {
       "offset": 103,

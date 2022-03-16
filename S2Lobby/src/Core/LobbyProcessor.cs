@@ -351,7 +351,6 @@ namespace S2Lobby
 
         private void HandleRegisterServer(RegisterServer payload, PayloadWriter writer)
         {
-            // TODO
             uint serverId = Program.Servers.Register(payload.Name);
             if (serverId == 0)
             {
@@ -373,14 +372,22 @@ namespace S2Lobby
             _server.ConnectionId = Connection;
             _server.OwnerId = Account.Id;
             _server.Description = payload.Description;
-            //_server.Ip = "192.168.8.20"; // TODO get ip from connection if possible
             _server.Ip = Config.Get("host/ip");
             //_server.Port = payload.Port;
+            // TODO port for TCP bridge
             _server.Port = Config.GetInt("host/port");
-            _server.PlayersTotal = payload.PlayersTotal;
-            _server.PlayersAi = 0;
+            _server.ServerType = payload.ServerType;
+            _server.LobbyId = payload.LobbyId;
+            _server.Version = payload.Version;
+            _server.MaxPlayers = payload.MaxPlayers;
+            _server.AiPlayers = payload.AiPlayers;
+            _server.Level = payload.Level;
+            _server.GameMode = payload.GameMode;
+            _server.Hardcore = payload.Hardcore;
             _server.Map = payload.Map;
             //_server.Map = "MP_2P_Storm_Coast\vfr_11888";
+            _server.AutomaticJoin = payload.AutomaticJoin;
+            _server.Data = payload.Data;
             _server.Running = false;
             
             var resultPayload = Payloads.CreatePayload<StatusWithId>();
@@ -490,7 +497,7 @@ namespace S2Lobby
         {
             GameServerData resultPayload = Payloads.CreatePayload<GameServerData>();
 
-            resultPayload.data = Crypto.BytesFromHexString("05000000 7465737400" +
+            resultPayload.debug = Crypto.BytesFromHexString("05000000 7465737400" +
                                                            "05000000" +
                                                            "01000000 00" +
                                                            "0D000000 3139322E3136382E382E323000" +
@@ -526,24 +533,26 @@ namespace S2Lobby
         {
             var resultPayload = Payloads.CreatePayload<GameServerData>();
             resultPayload.ServerId = server.Id;
-            resultPayload.OwnerId = server.OwnerId;
             resultPayload.Name = server.Name;
+            resultPayload.OwnerId = server.OwnerId;
             resultPayload.Description = server.Description;
             resultPayload.Ip = server.Ip;
             resultPayload.Port = server.Port;
-            resultPayload.MaxPlayers = server.PlayersTotal;
+            resultPayload.ServerType = server.ServerType;
+            resultPayload.LobbyId = server.LobbyId;
+            resultPayload.Version = server.Version;
+            resultPayload.MaxPlayers = server.MaxPlayers;
             resultPayload.CurPlayers = server.GetPlayerCount();
-            resultPayload.AiPlayers = server.PlayersAi;
+            resultPayload.AiPlayers = server.AiPlayers;
+            resultPayload.Level = server.Level;
+            resultPayload.GameMode = server.GameMode;
+            resultPayload.Hardcore = server.Hardcore;
             resultPayload.Map = server.Map;
             resultPayload.Running = server.Running;
+            resultPayload.Data = server.Data;
             resultPayload.TicketId = ticketId;
 
-            /*
-            resultPayload.Unknown0 = 0;
-            resultPayload.Unknown1 = 11757;
-            resultPayload.Unknown2 = "11757";
-            resultPayload.Unknown6 = "11757";
-            */
+            //resultPayload.Version = "v11757";
             
             return resultPayload;
         }
@@ -710,7 +719,7 @@ namespace S2Lobby
 
         private void HandleUpdateServerInfo(UpdateServerInfo payload, PayloadWriter writer)
         {
-            if (_server == null)
+            if (_server == null || _server.Id != payload.ServerId)
             {
                 ResultStatusMsg resultPayload1 = Payloads.CreatePayload<ResultStatusMsg>();
                 resultPayload1.Errorcode = 3;
@@ -723,8 +732,14 @@ namespace S2Lobby
             // TODO
             _server.Name = payload.Name;
             _server.Description = payload.Description;
-            _server.PlayersTotal = (byte) (payload.PlayersMax - payload.SlotsOccupied);
+            _server.MaxPlayers = (byte) (payload.MaxPlayers - payload.SlotsOccupied);
+            _server.Level = payload.Level;
+            _server.GameMode = payload.GameMode;
+            _server.Hardcore = payload.Hardcore;
             _server.Map = payload.Map;
+            _server.Running = payload.Running;
+            _server.Data = payload.Data;
+            _server.PropertyMask = payload.PropertyMask;
 
             SendServerUpdates(payload.TicketId);
             
