@@ -373,9 +373,8 @@ namespace S2Lobby
             _server.OwnerId = Account.Id;
             _server.Description = payload.Description;
             _server.Ip = Config.Get("host/ip");
-            //_server.Port = payload.Port;
-            // TODO port for TCP bridge
-            _server.Port = Config.GetInt("host/port");
+            _server.Port = payload.Port;
+            //_server.Port = Config.GetInt("host/port");
             _server.ServerType = payload.ServerType;
             _server.LobbyId = payload.LobbyId;
             _server.Version = payload.Version;
