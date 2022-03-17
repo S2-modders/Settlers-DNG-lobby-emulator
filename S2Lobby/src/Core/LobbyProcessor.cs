@@ -918,8 +918,7 @@ namespace S2Lobby
         {
             // TODO:
             // - chat filter?
-            // - proper encoding (ß turns into ?)
-            
+
             // for debugging only
             if (payload.Txt.Contains("s"))
             {
