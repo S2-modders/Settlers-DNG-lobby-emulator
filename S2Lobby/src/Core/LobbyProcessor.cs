@@ -513,8 +513,40 @@ namespace S2Lobby
                                                            "0A 00 00 00");
                 
             resultPayload.ServerId = 54;
-            resultPayload.OwnerId = 1;
+            resultPayload.OwnerId = 20;
             resultPayload.Name = "testname";
+            resultPayload.Description = "description";
+            resultPayload.Ip = "192.168.8.20";
+            resultPayload.Port = 5479;
+            resultPayload.MaxPlayers = 6;
+            resultPayload.CurPlayers = 2;
+            resultPayload.AiPlayers = 1;
+            resultPayload.ServerType = 5;
+            resultPayload.LobbyId = 9212;
+            //resultPayload.Map = "MP_2P_Storm_Coast\vde_11757";
+            resultPayload.Map = "MP_2P_Storm_Coast\vde_9212";
+            resultPayload.Running = false;
+            //resultPayload.Data = Crypto.BytesFromHexString("01 01 01 01 3131373537");
+            resultPayload.TicketId = ticketId;
+
+            SendReply(writer, resultPayload);
+
+            //Program.Servers.Register(resultPayload.Name);
+            
+            var chatPayload = Payloads.CreatePayload<Chat>();
+            chatPayload.Txt = $"Created fake game: {resultPayload.Name}";
+            chatPayload.FromId = 0;
+            SendReply(writer, chatPayload);
+        }
+        
+        private void ServerListTest(PayloadWriter writer, uint ticketId, string name, byte[] data)
+        {
+            var rnd = new Random();
+            GameServerData resultPayload = Payloads.CreatePayload<GameServerData>();
+
+            resultPayload.ServerId = (uint) rnd.Next(100, 1000);
+            resultPayload.OwnerId = (uint) rnd.Next(1001, 2000);
+            resultPayload.Name = name;
             resultPayload.Description = "description";
             resultPayload.Ip = "192.168.8.20";
             resultPayload.Port = 5479;
@@ -523,9 +555,15 @@ namespace S2Lobby
             resultPayload.AiPlayers = 1;
             resultPayload.Map = "MP_2P_Storm_Coast\vde_11757";
             resultPayload.Running = false;
+            resultPayload.Data = data;
             resultPayload.TicketId = ticketId;
 
             SendReply(writer, resultPayload);
+
+            var chatPayload = Payloads.CreatePayload<Chat>();
+            chatPayload.Txt = $"Created fake game: {resultPayload.Name}";
+            chatPayload.FromId = 0;
+            SendReply(writer, chatPayload);
         }
         
         private static GameServerData CreateServerInfoPayload(Server server, uint ticketId)
@@ -540,6 +578,7 @@ namespace S2Lobby
             resultPayload.ServerType = server.ServerType;
             resultPayload.LobbyId = server.LobbyId;
             resultPayload.Version = server.Version;
+            //resultPayload.Version = "11757";
             resultPayload.MaxPlayers = server.MaxPlayers;
             resultPayload.CurPlayers = server.GetPlayerCount();
             resultPayload.AiPlayers = server.AiPlayers;
@@ -547,12 +586,12 @@ namespace S2Lobby
             resultPayload.GameMode = server.GameMode;
             resultPayload.Hardcore = server.Hardcore;
             resultPayload.Map = server.Map;
+            //resultPayload.Map = "MP_2P_Storm_Coast\vde_9212";
             resultPayload.Running = server.Running;
             resultPayload.Data = server.Data;
+            //resultPayload.Data = Encoding.Default.GetBytes("9898");
             resultPayload.TicketId = ticketId;
 
-            //resultPayload.Version = "v11757";
-            
             return resultPayload;
         }
 
