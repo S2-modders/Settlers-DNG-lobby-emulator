@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Runtime.Remoting.Channels;
@@ -920,9 +920,23 @@ namespace S2Lobby
             // - chat filter?
 
             // for debugging only
-            if (payload.Txt.Contains("s"))
+            if (payload.Txt.StartsWith("/s"))
             {
-                //ServerListTest(writer, payload.TicketId);
+                ServerListTest(writer, payload.TicketId);
+            }
+
+            if (payload.Txt.StartsWith("/cg"))
+            {
+                string[] cmds = payload.Txt.Split(' ');
+                if (cmds.Length < 3)
+                {
+                    var chatPayload = Payloads.CreatePayload<Chat>();
+                    chatPayload.Txt = $"Usage: /cg <name> <data>";
+                    chatPayload.FromId = 0;
+                    SendReply(writer, chatPayload);
+                    return;
+                }
+                ServerListTest(writer, payload.TicketId, cmds[1], Encoding.Default.GetBytes(cmds[2]));
             }
             
             var chatobservers = GlobalChatReceivers.ToArray();
