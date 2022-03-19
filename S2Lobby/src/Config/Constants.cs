@@ -9,7 +9,7 @@ namespace S2Lobby
         
         public static string MOTD = "Welcome to The Settlers II: 10th anniversary! \n" +
                                     " --- you are logged in as %name% --- \n\n" +
-                                    " S2 online lobby by cocomed, pnxr and zocker_160 \n" +
+                                    " S2 online lobby by zocker_160, cocomed and pnxr \n" +
                                     $"({VERSION}) \n\n" +
                                     "Join our Discord: https://discord.gg/UAXH3VS9Qy \0";
         
