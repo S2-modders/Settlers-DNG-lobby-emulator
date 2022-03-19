@@ -16,7 +16,7 @@ Tincat version used: 3.0.53
 - [x] join new game
 - [x] launch new lobby with other players
 - [x] automatic creation of TCP bridge to bypass port forwarding issues
-- [ ] see all created games with default filter
+- [ ] see all created games with default filter (workaround with dll hack)
 
 ### Usage
 
