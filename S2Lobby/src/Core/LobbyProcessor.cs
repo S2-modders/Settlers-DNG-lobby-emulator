@@ -641,9 +641,8 @@ namespace S2Lobby
             {
                 Logger.LogError($"DeregObserverUserLogin failed for {accountId}");
             }
-            
-            return;
 
+            /*
             // notify all users
             foreach (KeyValuePair<uint, uint> loginObserver in GlobalLoginReceivers.ToArray())
             {
@@ -651,6 +650,7 @@ namespace S2Lobby
                 resultPayload.UserId = accountId;
                 SendToLobbyConnection(loginObserver.Key, resultPayload);
             }
+            */
         }
 
         private void HandleJoinServer(JoinServer payload, PayloadWriter writer)
