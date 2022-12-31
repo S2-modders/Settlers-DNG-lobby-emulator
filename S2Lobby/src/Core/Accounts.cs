@@ -11,13 +11,18 @@ namespace S2Lobby
         {
 
             string server = Config.Get("database/mysql/ip");
+            string port = Config.Get("database/mysql/port");
             string database = Config.Get("database/mysql/name");
             string user = Config.Get("database/mysql/user");
             string password = Config.Get("database/mysql/pass");
-            string port = Config.Get("database/mysql/port");
-            string sslM = "none";
-
-            string connString = string.Format("server={0};port={1};user id={2}; password={3}; database={4}; SslMode={5}; charset=latin1; Pooling=true;", server, port, user, password, database, sslM);
+            
+            var connString =
+                $"server={server};" +
+                $"port={port};" +
+                $"database={database};" +
+                $"user id={user};" +
+                $"password={password};" +
+                "charset=utf8; pooling=true;";
 
             conn = new MySqlConnection(connString);
 
@@ -53,10 +58,10 @@ namespace S2Lobby
                 conn.Close();
                 conn.Dispose();
 
-                Logger.Log($"[Account database ready]");
+                Logger.Log("[Account database ready]");
             } catch (System.Exception e)
             {
-                Logger.Log($"[Failed to access account database]");
+                Logger.Log("[Failed to access account database]");
                 Logger.Log(connString);
                 Logger.Log(e.Message);
 

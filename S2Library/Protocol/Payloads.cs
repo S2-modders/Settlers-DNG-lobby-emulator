@@ -3276,7 +3276,7 @@ namespace S2Library.Protocol
     public class RegObserverUserLogin : PayloadPrefix // Payload115
     {
         public bool SendAll;
-        public uint TicketId;
+        public uint TicketId; // maybe UserId?
 
         public override void Serialize(Serializer serializer, bool fullHeader = true)
         {
