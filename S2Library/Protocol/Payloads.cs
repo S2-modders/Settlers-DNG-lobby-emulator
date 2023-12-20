@@ -4498,7 +4498,7 @@ namespace S2Library.Protocol
         public bool Running;
         public byte[] Data;
         public uint TicketId;
-
+    
         public byte[] debug;
         
         public override void Serialize(Serializer serializer, bool fullHeader = true)

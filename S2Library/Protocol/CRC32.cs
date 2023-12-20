@@ -42,6 +42,8 @@ namespace S2Library.Protocol
                     uint* uintPtr = (uint*)bytePtr;
                     uint* uintEndPtr = uintPtr + (count / bytesAtOnce) * (bytesAtOnce / 4);
 
+                    Console.WriteLine($"{count}, {bytesAtOnce}, {count/bytesAtOnce}, {bytesAtOnce/4}");
+                    
                     uint* lookup_1 = lookup_0 + 0x100;
                     uint* lookup_2 = lookup_0 + 0x200;
                     uint* lookup_3 = lookup_0 + 0x300;
@@ -58,10 +60,18 @@ namespace S2Library.Protocol
                     uint* lookup_14 = lookup_0 + 0xE00;
                     uint* lookup_15 = lookup_0 + 0xF00;
 
+                    Console.WriteLine("LOOP START");
+                    Console.WriteLine($"Diff: {uintEndPtr - uintPtr}");
+                    
                     while (uintPtr < uintEndPtr)
                     {
+                        Console.WriteLine($"Diff: {uintEndPtr - uintPtr}");
+                        
                         for (int unrolling = 0; unrolling < unroll; ++unrolling)
                         {
+                            Console.WriteLine($"Unroll loop {unrolling} of {unroll}");
+                            Console.WriteLine($"Current CRC: {crc}");
+                            
                             //Little endian
                             uint one = *uintPtr++ ^ crc;
                             uint two = *uintPtr++;
@@ -83,21 +93,39 @@ namespace S2Library.Protocol
                                 lookup_13[(one >> 16) & 0xFF] ^
                                 lookup_14[(one >> 8) & 0xFF] ^
                                 lookup_15[one & 0xFF];
+                            
+                            Console.WriteLine($"one: {one}, two: {two}, three: {three}, four: {four}");
+                            Console.WriteLine($"CRC after loop {unrolling}: {crc}");
                         }
                     }
 
+                    Console.WriteLine($"CRC after while loop: {crc}");
+                    
                     // remaining 1 to 63 bytes (standard algorithm)
-                    int restBytes = count % bytesAtOnce;
+                    //int restBytes = count % bytesAtOnce;
                     for (int i = (count / bytesAtOnce) * bytesAtOnce; i < count;)
                     {
                         crc = (crc >> 8) ^ *(lookup_0 + ((crc & 0xFF) ^ bytePtr[i++]));
                     }
+                    
+                    Console.WriteLine($"CRC after final loop: {crc}");
                 }
             }
 
             return crc;
         }
 
+        public static void main()
+        {
+            var d1 = Crypto.BytesFromHexString("D82704000400050000007465737400070000004156545E58410011000000BCA2BCA3B7BA9C9EBBA7949F97948780000100ED2D000001000000000000C8342CDEFFFFFFFF000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000688642DCFFFFFFFF00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000038B792E0FFFFFFFF00000000000000000000000000000000000000000000000000000000000000000000000000000000");
+            //var d1 = Crypto.BytesFromHexString("D8276900690002000000");  
+                
+            uint soll = 0xc53d8ff8;
+            uint ist = LittleEndian(d1, 0, d1.Length, 0);
+            
+            Console.WriteLine($"ist: {ist}, soll: {soll}; check: {ist == soll}");
+        }
+        
         private static readonly uint[] Lookup = new uint[]
         {
             // note: the first number of every second row corresponds to the half-byte look-up table !

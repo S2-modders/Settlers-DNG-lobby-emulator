@@ -216,7 +216,7 @@ namespace S2Lobby
                 SendReply(writer, Payloads.CreateStatusFailMsg(
                     0x3D, "Username does not exist", payload.TicketId));
                 return;
-            }
+            }   
             
             if (!Serializer.CompareArrays(payload.Password, Account.Password))
             {

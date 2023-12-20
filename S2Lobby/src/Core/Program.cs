@@ -59,10 +59,12 @@ namespace S2Lobby
             _chatConnectionManager.Connected += ChatConnectionManagerOnConnected;
             _chatConnectionManager.ConnectFailed += ChatConnectionManagerOnConnectFailed;
 
-            _lobbyConnectionManager.InitServer(null, Config.GetInt("lobby/port"));
+            var lobbyPort = Config.GetInt("lobby/port");
+            
+            _lobbyConnectionManager.InitServer(null, lobbyPort);
             _chatConnectionManager.InitServer(null, Config.GetInt("chat/port"));
 
-            Logger.Log($"[Lobby server running]");
+            Logger.Log($"[Lobby server running on port {lobbyPort}]");
             Logger.Log($" - press S to quit -");
             while(await GetConsoleKeyEvent() != ConsoleKey.S) {};
             Logger.Log($"[Lobby server shutting down]");

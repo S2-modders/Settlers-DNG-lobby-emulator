@@ -377,14 +377,16 @@ namespace S2Lobby
             //_server.Port = Config.GetInt("host/port");
             _server.ServerType = payload.ServerType;
             _server.LobbyId = payload.LobbyId;
-            _server.Version = payload.Version;
+            //_server.Version = payload.Version;
+            _server.Version = "gb_9212";
             _server.MaxPlayers = payload.MaxPlayers;
             _server.AiPlayers = payload.AiPlayers;
             _server.Level = payload.Level;
             _server.GameMode = payload.GameMode;
             _server.Hardcore = payload.Hardcore;
-            _server.Map = payload.Map;
-            //_server.Map = "MP_2P_Storm_Coast\vfr_11888";
+            //_server.Map = payload.Map;
+            //_server.Map = "MP_2P_Storm_Coast\vfr_11757";
+            _server.Map = "MP_2P_Storm_Coast\vgb_9212";
             _server.AutomaticJoin = payload.AutomaticJoin;
             _server.Data = payload.Data;
             _server.Running = false;
@@ -395,7 +397,7 @@ namespace S2Lobby
             resultPayload.Id = _server.Id;
             resultPayload.TicketId = payload.TicketId;
             SendReply(writer, resultPayload);
-            
+                
             SendServerUpdates(payload.TicketId);
 
             Logger.Log($"User {Account.UserName} created a new lobby as {payload.Name}");
