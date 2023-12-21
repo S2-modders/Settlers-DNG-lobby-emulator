@@ -77,6 +77,8 @@ func HandleConnection(conn *net.TCPConn) {
 			handleChatMessage(conn, payloadBuf)
 		case 4:
 			handleRequestLogin(conn, payloadBuf)
+		case 71:
+			handleRequestCreateAccount(conn, payloadBuf)
 		case 105:
 			handleRequestMOTD(conn, payloadBuf)
 		case 107:
@@ -305,6 +307,40 @@ func handleHandshake(conn *net.TCPConn) error {
 	)
 
 	return sendPackage(conn, packages.HandshakeConnected, packbuf.Bytes())
+}
+
+func handleRequestCreateAccount(conn *net.TCPConn, r io.Reader) {
+	pack, err := handlePackage[packages.RequestCreateAccount](r)
+	if err != nil {
+		log.Errorln(err)
+		return
+	}
+
+	/*
+	* RESULT codes:
+	* 0x0: OK
+	* 0x1A: CD key invalid
+	* 0x29: user already exists
+	* 0x3E: wrong version
+	*/
+
+	if pack.Patchlevel != config.Patchlevel {
+		sendResult(conn, 0x3E, "wrong patchlevel", pack.TicketId)
+		return
+	}
+	
+	// TODO CD key check (?)
+
+	// we just accept everything, because we don't have a user database
+
+	user := &lobby.Account{
+		Name: pack.Nickname,
+		Connection: conn,
+	}
+	lobby.AddUser(user)
+
+	sendResult(conn, 0, "", pack.TicketId)
+	notifyUserLoggedIn(user)
 }
 
 func handleRequestLogin(conn *net.TCPConn, r io.Reader) {
