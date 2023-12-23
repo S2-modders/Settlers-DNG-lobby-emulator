@@ -2,3 +2,5 @@
 
 doc/
 src/frps
+bin/
+pkg/
