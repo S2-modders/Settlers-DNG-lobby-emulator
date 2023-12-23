@@ -127,6 +127,8 @@ func InitBridgeController() {
 	http.HandleFunc("/request/port", handleBridgePort)
 
 	go http.ListenAndServe(fmt.Sprintf(":%d", config.API_PORT), nil)
-
 	log.Infoln("API listening on port", config.API_PORT)
+
+	go runBridgeConnector()
+	log.Infoln("Bridge Connector running on port", config.CONTROLLER_PORT)
 }

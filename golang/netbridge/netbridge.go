@@ -1,11 +1,13 @@
 package netbridge
 
 import (
-	"io"
-	"net"
-	"time"
+	"os"
+	"os/exec"
+	"s2dnglobby/config"
+	"strconv"
 )
 
+/*
 func runBridge(hostConn *net.TCPConn, clientSocket *net.TCPListener) {
 	//defer clientSocket.Close()
 
@@ -80,5 +82,10 @@ func createBridge(hostPort, clientPort int) error {
 	go runBridge(hConn, cListener)
 	return nil
 }
+*/
 
-// init FRPS here
+func runBridgeConnector() {
+	cmd :=  exec.Command("./frps", "-p", strconv.Itoa(config.CONTROLLER_PORT))
+	cmd.Stdout = os.Stdout
+	cmd.Run()
+}
