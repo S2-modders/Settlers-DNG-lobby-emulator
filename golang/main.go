@@ -11,10 +11,14 @@ import (
 )
 
 var log = library.GetLogger("Main")
-//var connChannel = make(chan *net.TCPConn)
 
 func main() {	
 	log.Infoln("Starting S2 DNG Lobby Server")
+
+	if err := library.DepsCheck(); err != nil {
+		log.Fatalln(err)
+		return
+	}
 
 	netbridge.InitBridgeController()
 	lobby.InitLobby()
@@ -28,7 +32,7 @@ func main() {
 
 	listener, err := net.ListenTCP("tcp", &addr)
 	if err != nil {
-		log.Panic(err)
+		log.Fatalln(err)
 	}
 	defer listener.Close()
 
@@ -43,44 +47,4 @@ func main() {
 
 		go network.HandleConnection(conn)
 	}
-
-	//var data = make([]byte, 1024)
-	/*
-	for {
-		var header = new(packages.Header)
-
-		if err := binary.Read(conn, binary.LittleEndian, header); err != nil {
-			//panic(err)
-			fmt.Println(err)
-		}
-
-		fmt.Println("got header:", header)
-		fmt.Println(
-			hex.EncodeToString(header.Magic[:]), 
-			header.HeaderType, 
-			header.PayloadSize,
-			hex.EncodeToString(header.PayloadChecksum[:]),
-		)
-
-		break
-	}
-	*/
-
-	/*
-	for {
-		n, err := conn.Read(data)
-		if err != nil {
-			if errors.Is(err, io.EOF) {
-				return
-			} else {
-				panic(err)
-			}
-		}
-
-		fmt.Printf("got %d bytes: ", n)
-
-		var payload = data[:n]
-		fmt.Println(hex.EncodeToString(payload))
-	}
-	*/
 }
