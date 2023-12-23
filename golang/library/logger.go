@@ -12,6 +12,8 @@ import (
 const info 	= "INFO "
 const debug = "DEBUG"
 const err 	= "ERROR"
+const fatal = "FATAL"
+const panic = "PANIC"
 
 type logger struct {
 	name   string
@@ -56,14 +58,24 @@ func (l *logger) Errorf(format string, v ...any) {
 	l.logger.Printf(format, l.name, err, v)
 }
 
+func (l *logger) Fatal(v ...any) {
+	l.logger.Fatal(l.name, fatal, v)
+}
+func (l *logger) Fatalln(v ...any) {
+	l.logger.Fatalln(l.name, fatal, v)
+}
+func (l *logger) Fatalf(format string, v ...any) {
+	l.logger.Fatalf(format, l.name, fatal, v)
+}
+
 func (l *logger) Panic(v ...any) {
-	l.logger.Panic(l.name, v)
+	l.logger.Panic(l.name, panic, v)
 }
 func (l *logger) Panicln(v ...any) {
-	l.logger.Panicln(l.name, v)
+	l.logger.Panicln(l.name, panic, v)
 }
 func (l *logger) Panicf(format string, v ...any) {
-	l.logger.Panicf(format, l.name, v)
+	l.logger.Panicf(format, l.name, panic, v)
 }
 
 
