@@ -559,20 +559,26 @@ func handleAddGameServer(conn *net.TCPConn, r io.Reader) {
 		return
 	}
 
-	// TODO create bridge connection and fill IP and Port below
-	time.Sleep(10 * time.Second)
+	log.Infoln("LOCAL ADDR:", conn.LocalAddr().String())
+	log.Infoln("REMOTE ADDR:", conn.RemoteAddr().String())
+
+	//time.Sleep(10 * time.Second)
 
 	ip := "127.0.0.1"
 
 	if pack.Port == 9999 { // we misuse port 9999 as error code
-		// TODO handle error
+		log.Errorln("Client returned error code: failed to create bridge connector")
+		sendResult(conn, 1, "failed to create bridge connector", pack.TicketId)
+		return
 	}
 	if pack.Port == config.DefaultPort {
 		log.Debugln("DEFAULT PORT", conn.RemoteAddr().String())
 		ip = strings.Split(conn.RemoteAddr().String(), ":")[0]
 	} else {
-		// TODO set actual client IP
-		ip = "192.168.8.20"
+		// Public IP of Bridge Server
+		// being able to have multiple bridge servers to reduce latency
+		// would be great, but not worth the effort for this game
+		ip = strings.Split(conn.LocalAddr().String(), ":")[0]
 	}
 
 	server := &lobby.Server{
@@ -580,7 +586,7 @@ func handleAddGameServer(conn *net.TCPConn, r io.Reader) {
 		OwnerId: user.Uid,
 		Description: pack.Description,
 		IP: ip,
-		Port: pack.Port, // TODO maybe use different port (?)
+		Port: pack.Port,
 		ServerType: pack.ServerType,
 		LobbyId: pack.LobbyId,
 		Version: pack.Version,
