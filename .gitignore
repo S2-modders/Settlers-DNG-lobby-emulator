@@ -4,6 +4,9 @@ msgdefs*.ini
 notes.md
 config.xml
 
+golang/frps
+
+
 *.rsuser
 *.suo
 *.user

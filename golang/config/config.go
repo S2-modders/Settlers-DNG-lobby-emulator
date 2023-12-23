@@ -5,7 +5,11 @@ import (
 )
 
 const DEBUGGING = true
-const SERVER_PORT = 6800
+
+const DefaultPort = 5479
+const SERVER_PORT = 6800 // port of the lobby server
+const API_PORT = 6801 // port of the HTTP API of lobby server
+const CONTROLLER_PORT = 6802 // port of FRP controller
 
 const Patchlevel = 11757
 

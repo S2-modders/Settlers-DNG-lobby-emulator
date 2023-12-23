@@ -2,20 +2,21 @@ package main
 
 import (
 	"net"
-	
+
 	"s2dnglobby/config"
 	"s2dnglobby/library"
 	"s2dnglobby/lobby"
+	"s2dnglobby/netbridge"
 	"s2dnglobby/network"
 )
 
 var log = library.GetLogger("Main")
-var connChannel = make(chan *net.TCPConn)
-
+//var connChannel = make(chan *net.TCPConn)
 
 func main() {	
 	log.Infoln("Starting S2 DNG Lobby Server")
 
+	netbridge.InitBridgeController()
 	lobby.InitLobby()
 
 	var addr = net.TCPAddr{
@@ -38,7 +39,7 @@ func main() {
 			continue
 		}
 		conn.SetNoDelay(true)
-		conn.SetReadBuffer(1024)
+		conn.SetReadBuffer(4096)
 
 		go network.HandleConnection(conn)
 	}

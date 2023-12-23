@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io"
 	"net"
+	"strings"
 	"time"
 
 	"s2dnglobby/config"
@@ -230,6 +231,7 @@ func notifyUserLoggedOut(conn *net.TCPConn) {
 	}
 
 	log.Infoln("User", user.Name, "disconnected from server")
+	conn.Close()
 }
 
 func notifyGameServerUpdate(server *lobby.Server, ticketId uint32) {
@@ -558,12 +560,26 @@ func handleAddGameServer(conn *net.TCPConn, r io.Reader) {
 	}
 
 	// TODO create bridge connection and fill IP and Port below
+	time.Sleep(10 * time.Second)
+
+	ip := "127.0.0.1"
+
+	if pack.Port == 9999 { // we misuse port 9999 as error code
+		// TODO handle error
+	}
+	if pack.Port == config.DefaultPort {
+		log.Debugln("DEFAULT PORT", conn.RemoteAddr().String())
+		ip = strings.Split(conn.RemoteAddr().String(), ":")[0]
+	} else {
+		// TODO set actual client IP
+		ip = "192.168.8.20"
+	}
 
 	server := &lobby.Server{
 		Name: pack.Name,
 		OwnerId: user.Uid,
 		Description: pack.Description,
-		IP: "127.0.0.1", // TODO
+		IP: ip,
 		Port: pack.Port, // TODO maybe use different port (?)
 		ServerType: pack.ServerType,
 		LobbyId: pack.LobbyId,
