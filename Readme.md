@@ -17,6 +17,7 @@ Tincat version used: 3.0.53
 - [x] launch new lobby with other players
 - [x] port check when hosting game, prefer direct connection
 - [x] automatic creation of TCP bridge if direct connection fails
+- [ ] automatic disconnect from TCP bridge when user leaves multiplayer screen
 - [ ] see all created games with default filter (cannot get this to work :(( - kinda workaround with dll hack for now)
 
 ### Credits
