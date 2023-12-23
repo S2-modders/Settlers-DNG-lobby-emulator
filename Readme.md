@@ -6,7 +6,7 @@ Tincat version used: 3.0.53
 
 ### Current Progress:
 
-- [x] create account (just a stub, no actual account creation happening)
+- [x] create account (just a stub, no actual account creation happening**)
 - [x] login with account
 - [x] request and show MOTD
 - [x] show online status of other players
@@ -20,8 +20,10 @@ Tincat version used: 3.0.53
 - [ ] automatic disconnect from TCP bridge when user leaves multiplayer screen
 - [ ] see all created games with default filter (cannot get this to work :(( - kinda workaround with dll hack for now)
 
+**) managing a user database is not worth it for this game, so any connection gets accepted regardless of CD key, username and password
+
 ### Credits
 
 - BIG THANKS to cocomed who originally created the C# implementation this port is based on [here](http://darkmatters.org/forums/index.php?/topic/23833-network-traffic-probes-for-sacred-2-available/&do=findComment&comment=7015188)
-- pnxr for continuing the project and adding fixes
-- the sacred2 community
+- pnxr for continuing the project and adding fixes to the C# code base
+- the Sacred2 community
