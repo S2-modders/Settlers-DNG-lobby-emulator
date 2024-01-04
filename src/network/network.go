@@ -22,7 +22,7 @@ var log = library.GetLogger("ConnHandler")
 
 func HandleConnection(conn *net.TCPConn) {
 	defer conn.Close()
-	log.Debugln("Got new connection from", conn.RemoteAddr())
+	log.Debugln("Got new connection from", conn.RemoteAddr().String())
 
 	if err := handleHandshake(conn); err != nil {
 		log.Errorln("Handshake failed:", err)

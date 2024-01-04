@@ -24,7 +24,7 @@ func main() {
 	lobby.InitLobby()
 
 	var addr = net.TCPAddr{
-		IP: net.ParseIP("0.0.0.0"),
+		IP: net.IPv4zero,
 		Port: config.SERVER_PORT,
 	}
 
