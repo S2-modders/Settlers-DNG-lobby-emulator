@@ -74,11 +74,12 @@ func calculateLittleEndian(data []byte) uint32 {
 }
 
 func getUint32FromDataIndex(data []byte, index int) uint32 {
-	b1 := uint32(data[index])
-	b2 := uint32(data[index + 1]) << 8
-	b3 := uint32(data[index + 2]) << 16
-	b4 := uint32(data[index + 3]) << 24
-	return b1 + b2 + b3 + b4
+	val :=
+		uint32(data[index]) |
+		uint32(data[index + 1]) << 8 |
+		uint32(data[index + 2]) << 16 |
+		uint32(data[index + 3]) << 24
+	return val
 }
 
 var lookupTable = [...]uint32{
