@@ -22,6 +22,10 @@ Tincat version used: 3.0.53
 
 **) managing a user database is not worth it for this game, so any connection gets accepted regardless of CD key, username and password
 
+### Note
+
+The current version is a complete rewrite of the old C# code base in golang. The original fork code can be found in the `old/C#` branch.
+
 ### Credits
 
 - BIG THANKS to cocomed who originally created the C# implementation this port is based on [here](http://darkmatters.org/forums/index.php?/topic/23833-network-traffic-probes-for-sacred-2-available/&do=findComment&comment=7015188)
