@@ -26,6 +26,7 @@ func (l *logger) Info(v ...any) {
 }
 func (l *logger) Infoln(v ...any) {
 	l.logger.Println(l.name, info, v)
+	//l.logger.Println(append([]any{l.name, info}, v...)...)
 }
 func (l *logger) Infof(format string, v ...any) {
 	l.logger.Printf(format, l.name, info, v)

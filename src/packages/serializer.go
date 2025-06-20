@@ -10,7 +10,7 @@ import (
 )
 
 func Stringify(source any) string {
-	builder := strings.Builder{}
+	var builder strings.Builder
 
 	v := reflect.ValueOf(source).Elem()
 
@@ -82,8 +82,7 @@ func Serialize(w io.Writer, source any) error {
 			}
 
 			writer.WriteUint32(uint32(len(v)))
-			val := ser.ToBytes(v)
-			writer.Write(val)
+			writer.Write(ser.ToBytes(v))
 		case []byte:
 			writer.WriteUint32(uint32(len(v)))
 			writer.Write(v)

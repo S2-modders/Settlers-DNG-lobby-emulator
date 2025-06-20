@@ -12,7 +12,7 @@ import (
 
 var log = library.GetLogger("Main")
 
-func main() {	
+func main() {
 	log.Infoln("Starting S2 DNG Lobby Server")
 
 	if err := library.DepsCheck(); err != nil {

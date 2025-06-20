@@ -42,3 +42,16 @@ func Test(t *testing.T) {
 		t.Error(ist, "!=", soll)
 	}
 }
+
+func Test2(t *testing.T) {	
+	d1 := []byte("graphic_main.lua")
+
+	ist := library.CalcChecksum(d1)
+	var soll uint32 = 0x55b3dc3a
+
+	t.Logf("checksum: %d, %x", ist, ist)
+
+	if ist != soll {
+		t.Error(ist, "!=", soll)
+	}
+}

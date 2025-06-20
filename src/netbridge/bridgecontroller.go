@@ -65,7 +65,7 @@ func getNextAvailablePort(start int) (int, error) {
 }
 
 func checkPortForward(ip string, port int) bool {
-	newAddr := fmt.Sprintf("%s:%d", ip, config.DefaultPort)
+	newAddr := fmt.Sprintf("%s:%d", ip, port)
 
 	conn, err := net.DialTimeout("tcp", newAddr, 2 * time.Second)
 	if err != nil {

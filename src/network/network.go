@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"io"
 	"net"
-	"strings"
 	"time"
 
 	"s2dnglobby/config"
@@ -320,7 +319,7 @@ func handleRequestCreateAccount(conn *net.TCPConn, r io.Reader) {
 
 	/*
 	* RESULT codes:
-	* 0x0: OK
+	* 0x00: OK
 	* 0x1A: CD key invalid
 	* 0x29: user already exists
 	* 0x3E: wrong version
@@ -564,7 +563,8 @@ func handleAddGameServer(conn *net.TCPConn, r io.Reader) {
 
 	//time.Sleep(10 * time.Second)
 
-	ip := "127.0.0.1"
+	ip := net.IPv4(127, 0, 0, 1)
+
 
 	if pack.Port == 9999 { // we misuse port 9999 as error code
 		log.Errorln("Client returned error code: failed to create bridge connector")
@@ -573,19 +573,19 @@ func handleAddGameServer(conn *net.TCPConn, r io.Reader) {
 	}
 	if pack.Port == config.DefaultPort {
 		log.Debugln("DEFAULT PORT", conn.RemoteAddr().String())
-		ip = strings.Split(conn.RemoteAddr().String(), ":")[0]
+		ip = conn.RemoteAddr().(*net.TCPAddr).IP
 	} else {
 		// Public IP of Bridge Server
 		// being able to have multiple bridge servers to reduce latency
-		// would be great, but not worth the effort for this game
-		ip = strings.Split(conn.LocalAddr().String(), ":")[0]
+		// would be great, but quite a bit of effort
+		ip = conn.LocalAddr().(*net.TCPAddr).IP
 	}
 
 	server := &lobby.Server{
 		Name: pack.Name,
 		OwnerId: user.Uid,
 		Description: pack.Description,
-		IP: ip,
+		IP: ip.String(),
 		Port: pack.Port,
 		ServerType: pack.ServerType,
 		LobbyId: pack.LobbyId,
@@ -612,10 +612,13 @@ func handleAddGameServer(conn *net.TCPConn, r io.Reader) {
 }
 
 func createGameServerData(server *lobby.Server, ticketId uint32) *packages.GameServerData {
+
 	// FIXME there is an issue with server entries being listed under "other versions"
 
 	v := server.Version // always empty (?)
-	//v := "11757" // does not work
+
+	// none of this works
+	//v := "11757"
 	//v := "Version 11757"
 	//v := "gb_11757"
 	
@@ -670,7 +673,8 @@ func handleRemoveServer(conn *net.TCPConn, r io.Reader) {
 		}
 
 	case 0xE:
-		time.Sleep(1 * time.Second) // not sure why, but this was in the original implementation
+		// not sure why, but this was in the original implementation
+		time.Sleep(1 * time.Second)
 		
 		if !ok {
 			log.Errorln("Trying to remove server that does not exist")
