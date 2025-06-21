@@ -14,8 +14,8 @@ const CONTROLLER_PORT = 6802 // port of FRP controller
 const Patchlevel = 11757
 
 const VersionMaj = 0;
-const VersionMin = 2;
-const Year = "2022 - 2023"
+const VersionMin = 3;
+const Year = "2022 - 2025"
 
 const MOTD = `Welcome to The Settlers II: 10th anniversary! 
 --- you are logged in as %s --- 
