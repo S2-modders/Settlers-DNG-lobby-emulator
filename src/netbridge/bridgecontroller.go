@@ -16,7 +16,7 @@ import (
 var log = library.GetLogger("BridgeController")
 
 const portStart = 10_000
-const portRange = 1000
+const portEnd   = 11_000
 
 var portLock sync.Mutex
 
@@ -50,15 +50,14 @@ func requestAvailablePort(port int) (bool, error) {
 }
 
 func getNextAvailablePort(start int) (int, error) {
-	for i := 0; i < portRange; i++ {
-		p := start + i
-		b, err := requestAvailablePort(p)
+	for i := portStart; i < portEnd; i++ {
+		b, err := requestAvailablePort(i)
 		if err != nil {
 			return 0, err
 		}
 
 		if b {
-			return p, nil
+			return i, nil
 		}
 	}
 	return 0, fmt.Errorf("no available port found")
