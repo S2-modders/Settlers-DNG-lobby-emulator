@@ -194,7 +194,7 @@ func writeString(w *ser.Encoder, s string) error {
 	}
 
 	w.WriteUint32(uint32(len(s)))
-	w.WriteString(s)
+	w.Write(ser.ToBytes(s))
 	
 	return nil
 }
