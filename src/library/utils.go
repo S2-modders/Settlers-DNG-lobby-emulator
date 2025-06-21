@@ -11,9 +11,13 @@ func commandExists(cmd string) bool {
 	return err == nil
 }
 
-func DepsCheck() error {
+func DepsCheck(local bool) error {
     if runtime.GOOS != "linux" {
         return fmt.Errorf("unsupported OS detected")
+    }
+
+    if local {
+        return nil
     }
 
     deps := [...]string{

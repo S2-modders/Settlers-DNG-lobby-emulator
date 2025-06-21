@@ -2,6 +2,8 @@ package main
 
 import (
 	"net"
+	"os"
+	"slices"
 
 	"s2dnglobby/config"
 	"s2dnglobby/library"
@@ -15,12 +17,19 @@ var log = library.GetLogger("Main")
 func main() {
 	log.Infoln("Starting S2 DNG Lobby Server")
 
-	if err := library.DepsCheck(); err != nil {
+	var runLocal = slices.Contains(os.Args, "--local")
+
+	if err := library.DepsCheck(runLocal); err != nil {
 		log.Fatalln(err)
 		return
 	}
 
-	netbridge.InitBridgeController()
+	if ! runLocal {
+		netbridge.InitBridgeController()
+	} else {
+		log.Infoln("Local mode: bridge disabled")
+	}
+
 	lobby.InitLobby()
 
 	var addr = net.TCPAddr{
