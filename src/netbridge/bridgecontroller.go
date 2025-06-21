@@ -123,7 +123,7 @@ func InitBridgeController(initConnector bool) {
 	http.HandleFunc("/port/controller", handleControllerPort)
 
 	// request public port for bridge connection
-	http.HandleFunc("/request/port", handleBridgePort)
+	http.HandleFunc("/port/request", handleBridgePort)
 
 	go http.ListenAndServe(fmt.Sprintf(":%d", config.API_PORT), nil)
 	log.Infoln("API listening on port", config.API_PORT)

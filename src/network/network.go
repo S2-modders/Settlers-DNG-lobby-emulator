@@ -571,7 +571,6 @@ func handleAddGameServer(conn *net.TCPConn, r io.Reader) {
 
 	ip := net.IPv4(127, 0, 0, 1)
 
-
 	if pack.Port == 9999 { // we misuse port 9999 as error code
 		log.Errorln("Client returned error code: failed to create bridge connector")
 		sendResult(conn, 1, "failed to create bridge connector", pack.TicketId)
