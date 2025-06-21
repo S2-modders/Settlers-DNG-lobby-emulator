@@ -564,8 +564,8 @@ func handleAddGameServer(conn *net.TCPConn, r io.Reader) {
 		return
 	}
 
-	log.Infoln("LOCAL ADDR:", conn.LocalAddr().String())
-	log.Infoln("REMOTE ADDR:", conn.RemoteAddr().String())
+	log.Debugln("LOCAL ADDR:", conn.LocalAddr().String())
+	log.Debugln("REMOTE ADDR:", conn.RemoteAddr().String())
 
 	//time.Sleep(10 * time.Second)
 
