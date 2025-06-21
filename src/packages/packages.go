@@ -114,7 +114,7 @@ type ChatMessage struct {
 type RequestLogin struct {
 	Type       uint16
 	Nickname   string
-	Password   string
+	Password   []byte // string
 	Cdkey      []byte
 	Keypool    uint16
 	Patchlevel uint32
