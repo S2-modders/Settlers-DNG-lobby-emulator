@@ -115,7 +115,7 @@ func handleBridgePort(w http.ResponseWriter, r *http.Request) {
 	log.Infoln("host port requested; found:", port)
 }
 
-func InitBridgeController() {
+func InitBridgeController(initConnector bool) {
 	// check if port forward is working
 	http.HandleFunc("/port/check", handleForwardCheck)
 
@@ -128,6 +128,10 @@ func InitBridgeController() {
 	go http.ListenAndServe(fmt.Sprintf(":%d", config.API_PORT), nil)
 	log.Infoln("API listening on port", config.API_PORT)
 
-	go runBridgeConnector()
-	log.Infoln("Bridge Connector running on port", config.CONTROLLER_PORT)
+	if initConnector {
+		go runBridgeConnector()
+		log.Infoln("Bridge Connector started on port", config.CONTROLLER_PORT)
+	} else {
+		log.Infoln("Local mode: bridge disabled")
+	}
 }

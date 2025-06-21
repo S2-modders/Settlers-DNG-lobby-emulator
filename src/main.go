@@ -24,12 +24,7 @@ func main() {
 		return
 	}
 
-	if ! runLocal {
-		netbridge.InitBridgeController()
-	} else {
-		log.Infoln("Local mode: bridge disabled")
-	}
-
+	netbridge.InitBridgeController(!runLocal)
 	lobby.InitLobby()
 
 	var addr = net.TCPAddr{
