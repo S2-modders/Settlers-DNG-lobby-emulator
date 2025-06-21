@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	ser "github.com/kelindar/binary"
+	"golang.org/x/text/encoding/charmap"
 )
 
 func Stringify(source any) string {
@@ -42,6 +43,7 @@ func Stringify(source any) string {
 			)
 		}
 
+		builder.WriteString("\t")
 		builder.WriteString(str)
 	}
 
@@ -77,12 +79,9 @@ func Serialize(w io.Writer, source any) error {
 				writer.Write([]byte{0})
 			}
 		case string:
-			if ! strings.HasSuffix(v, "\x00") {
-				v = v + "\x00"
+			if err := writeString(writer, v); err != nil {
+				return err
 			}
-
-			writer.WriteUint32(uint32(len(v)))
-			writer.Write(ser.ToBytes(v))
 		case []byte:
 			writer.WriteUint32(uint32(len(v)))
 			writer.Write(v)
@@ -143,7 +142,6 @@ func Deserialize(r io.Reader, target any) error {
 			if err != nil {
 				return err
 			}
-			val = strings.TrimSuffix(val, "\x00")
 			f.SetString(val)
 		case []byte:
 			val, err := readSlice(reader)
@@ -160,6 +158,12 @@ func Deserialize(r io.Reader, target any) error {
 	return nil
 }
 
+
+// NOTE: different versions of games might use other encoding
+var stringDecoder = charmap.ISO8859_15.NewDecoder()
+var stringEncoder = charmap.ISO8859_15.NewEncoder()
+
+
 func readString(r *ser.Decoder) (string, error) {
 	length, err := r.ReadUint32()
 	if err != nil {
@@ -171,8 +175,30 @@ func readString(r *ser.Decoder) (string, error) {
 		return "", err
 	}
 
-	return ser.ToString(&buf), nil
+	s, err := stringDecoder.String(ser.ToString(&buf))
+	if err != nil {
+		return "", err
+	}
+
+	return strings.TrimSuffix(s, "\x00"), nil
 }
+
+func writeString(w *ser.Encoder, s string) error {
+	if ! strings.HasSuffix(s, "\x00") {
+		s = s + "\x00"
+	}
+
+	s, err := stringEncoder.String(s)
+	if err != nil {
+		return err
+	}
+
+	w.WriteUint32(uint32(len(s)))
+	w.WriteString(s)
+	
+	return nil
+}
+
 
 func readSlice(r *ser.Decoder) ([]byte, error) {
 	length, err := r.ReadUint32()

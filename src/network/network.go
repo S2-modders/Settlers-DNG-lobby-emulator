@@ -114,6 +114,12 @@ func getHeader(conn *net.TCPConn) (*packages.Header, error) {
 	var header = new(packages.Header)
 	var payload = make([]byte, 28)
 
+	/*
+	if err := binary.Read(conn, binary.LittleEndian, header); err != nil {
+		return nil, fmt.Errorf("failed to parse header: %w", err)
+	}
+	*/
+
 	if _, err := conn.Read(payload); err != nil {
 		return nil, err
 	}
