@@ -79,6 +79,7 @@ func NewHandshakeRet() *HandshakeRet {
 }
 
 const payload_magic = 0x27D8 // D827
+//const payload_magic = 0x26B6 // B626
 
 type MsgHeader struct {
 	Magic uint16
@@ -87,7 +88,7 @@ type MsgHeader struct {
 
 func (h *MsgHeader) AssertIncoming() error {
 	if h.Magic != payload_magic {
-		return fmt.Errorf("invalid payload header magic: %d", h.Magic)
+		return fmt.Errorf("invalid payload header magic: %X", h.Magic)
 	}
 
 	return nil
@@ -371,4 +372,12 @@ type ChangeGameServer struct {
 	Data          []byte
 	PropertyMask  uint32
 	TicketId      uint32
+}
+
+// 188
+type CheckVersion struct {
+	Type       uint16
+	Version    int16
+	Subversion int16
+	TicketId   uint32
 }

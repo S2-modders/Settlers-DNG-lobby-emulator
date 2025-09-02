@@ -18,7 +18,6 @@ import (
 
 var log = library.GetLogger("ConnHandler")
 
-
 func HandleConnection(conn *net.TCPConn) {
 	defer conn.Close()
 	log.Debugln("Got new connection from", conn.RemoteAddr().String())
@@ -103,6 +102,8 @@ func HandleConnection(conn *net.TCPConn) {
 			handleLeaveServer(conn, payloadBuf)
 		case 177:
 			handleChangeGameServer(conn, payloadBuf)
+		case 188:
+			handleCheckVersion(conn, payloadBuf)
 		default:
 			log.Errorln("Unknown MsgType:", msgHeader.Type)
 			log.Debugln(hex.EncodeToString(payloadBuf.Bytes()))
@@ -115,9 +116,9 @@ func getHeader(conn *net.TCPConn) (*packages.Header, error) {
 	var payload = make([]byte, 28)
 
 	/*
-	if err := binary.Read(conn, binary.LittleEndian, header); err != nil {
-		return nil, fmt.Errorf("failed to parse header: %w", err)
-	}
+		if err := binary.Read(conn, binary.LittleEndian, header); err != nil {
+			return nil, fmt.Errorf("failed to parse header: %w", err)
+		}
 	*/
 
 	if _, err := conn.Read(payload); err != nil {
@@ -135,7 +136,7 @@ func getHeader(conn *net.TCPConn) (*packages.Header, error) {
 	}
 
 	log.Debugln(" <-- Header:",
-		"type:", header.HeaderType, 
+		"type:", header.HeaderType,
 		"size:", header.PayloadSize,
 	)
 
@@ -335,13 +336,13 @@ func handleRequestCreateAccount(conn *net.TCPConn, r io.Reader) {
 		sendResult(conn, 0x3E, "wrong patchlevel", pack.TicketId)
 		return
 	}
-	
+
 	// TODO CD key check (?)
 
 	// we just accept everything, because we don't have a user database
 
 	user := &lobby.Account{
-		Name: pack.Nickname,
+		Name:       pack.Nickname,
 		Connection: conn,
 	}
 	lobby.AddUser(user)
@@ -363,7 +364,7 @@ func handleRequestLogin(conn *net.TCPConn, r io.Reader) {
 	* 0x1B: CD Key invalid
 	* 0x3D: auth failed
 	* 0x3E: wrong version
-	*/
+	 */
 
 	if pack.Patchlevel != config.Patchlevel {
 		sendResult(conn, 0x3E, "Patchlevel does not match", pack.TicketId)
@@ -374,7 +375,7 @@ func handleRequestLogin(conn *net.TCPConn, r io.Reader) {
 	// TODO password check
 
 	user := &lobby.Account{
-		Name: pack.Nickname,
+		Name:       pack.Nickname,
 		Connection: conn,
 	}
 	lobby.AddUser(user)
@@ -558,6 +559,16 @@ func handleAddGameServer(conn *net.TCPConn, r io.Reader) {
 		return
 	}
 
+	/*
+	TODO
+
+	RESULT codes:
+	- 0x00: OK
+	- 0x02 or 0x83: GameServer already exists
+	- 0x85 or 0x86: Backconnect failed
+	- anything else: "internal error"
+	*/
+
 	user, ok := lobby.GetUser(conn)
 	if !ok {
 		log.Errorln("Failed to fetch user")
@@ -586,24 +597,26 @@ func handleAddGameServer(conn *net.TCPConn, r io.Reader) {
 		ip = conn.LocalAddr().(*net.TCPAddr).IP
 	}
 
+	//maptest := strings.ReplaceAll(pack.Map, "gb_11757", "de_9212")
+
 	server := &lobby.Server{
-		Name: pack.Name,
-		OwnerId: user.Uid,
-		Description: pack.Description,
-		IP: ip.String(),
-		Port: pack.Port,
-		ServerType: pack.ServerType,
-		LobbyId: pack.LobbyId,
-		Version: pack.Version,
-		MaxPlayers: pack.MaxPlayers,
-		AiPlayers: pack.AiPlayers,
-		Level: pack.Level,
-		GameMode: pack.GameMode,
-		Hardcore: pack.Hardcore,
-		Map: pack.Map,
+		Name:          pack.Name,
+		OwnerId:       user.Uid,
+		Description:   pack.Description,
+		IP:            ip.String(),
+		Port:          pack.Port,
+		ServerType:    pack.ServerType,
+		LobbyId:       pack.LobbyId,
+		Version:       pack.Version,
+		MaxPlayers:    pack.MaxPlayers,
+		AiPlayers:     pack.AiPlayers,
+		Level:         pack.Level,
+		GameMode:      pack.GameMode,
+		Hardcore:      pack.Hardcore,
+		Map:           pack.Map,
 		AutomaticJoin: pack.AutomaticJoin,
-		Running: false,
-		Data: pack.Data,
+		Running:       false,
+		Data:          pack.Data,
 	}
 	server.AddPlayer(conn)
 	lobby.AddServer(conn, server)
@@ -617,16 +630,8 @@ func handleAddGameServer(conn *net.TCPConn, r io.Reader) {
 }
 
 func createGameServerData(server *lobby.Server, ticketId uint32) *packages.GameServerData {
-
 	// FIXME there is an issue with server entries being listed under "other versions"
 
-	v := server.Version // always empty (?)
-
-	// none of this works
-	//v := "11757"
-	//v := "Version 11757"
-	//v := "gb_11757"
-	
 	p := packages.NewGameServerData()
 	p.ServerId = server.Id
 	p.Name = server.Name
@@ -636,7 +641,7 @@ func createGameServerData(server *lobby.Server, ticketId uint32) *packages.GameS
 	p.Port = server.Port
 	p.ServerType = server.ServerType
 	p.LobbyId = server.LobbyId
-	p.Version = v
+	p.Version = server.Version
 	p.MaxPlayers = server.MaxPlayers
 	p.CurrPlayers = uint8(server.GetPlayerCount())
 	p.AiPlayers = server.AiPlayers
@@ -647,6 +652,29 @@ func createGameServerData(server *lobby.Server, ticketId uint32) *packages.GameS
 	p.Running = server.Running
 	p.Data = server.Data
 	p.TicketId = ticketId
+
+	/*
+	p := packages.NewGameServerData()
+	p.ServerId = server.Id
+	p.Name = "Hans Wurst"
+	p.OwnerId = server.OwnerId
+	p.Description = "LMFAO"
+	p.IP = server.IP
+	p.Port = server.Port
+	p.ServerType = server.ServerType
+	p.LobbyId = server.LobbyId
+	p.Version = "69420"
+	p.MaxPlayers = server.MaxPlayers
+	p.CurrPlayers = uint8(server.GetPlayerCount())
+	p.AiPlayers = server.AiPlayers
+	p.Level = server.Level
+	p.GameMode = server.GameMode
+	p.Hardcore = server.Hardcore
+	p.Map = "MP_2P_Storm_Coast\vgb_69420"
+	p.Running = server.Running
+	p.Data = []byte("9876543210")
+	p.TicketId = ticketId
+	*/
 
 	return p
 }
@@ -661,8 +689,8 @@ func handleRemoveServer(conn *net.TCPConn, r io.Reader) {
 	/*
 	* TicketIds:
 	* 0xB (11): RemoveGameServer
-	* 0xE (14): StartGameServer 
-	*/
+	* 0xE (14): StartGameServer
+	 */
 
 	server, ok := lobby.GetServer(conn)
 
@@ -680,7 +708,7 @@ func handleRemoveServer(conn *net.TCPConn, r io.Reader) {
 	case 0xE:
 		// not sure why, but this was in the original implementation
 		time.Sleep(1 * time.Second)
-		
+
 		if !ok {
 			log.Errorln("Trying to remove server that does not exist")
 			sendResult(conn, 1, "ServerID does not exit", tid)
@@ -730,7 +758,7 @@ func handleChangeGameServer(conn *net.TCPConn, r io.Reader) {
 	server.Name = pack.Name
 	server.Description = pack.Description
 	//server.MaxPlayers = pack.MaxPlayers - pack.SlotsOccupied
-	//server.AiPlayers = 
+	//server.AiPlayers =
 	server.MaxPlayers = pack.MaxPlayers
 	server.AiPlayers = pack.SlotsOccupied
 	server.Level = pack.Level
@@ -756,9 +784,9 @@ func handleJoinServer(conn *net.TCPConn, r io.Reader) {
 
 	/*
 	* Error codes:
-	* 0x84 (132): GameServer not found
-	* 0x87 (135): GameServer full
-	*/
+	* 0x84: GameServer not found
+	* 0x87: GameServer full
+	 */
 
 	server, ok := lobby.GetServerById(pack.ServerId)
 	if !ok {
@@ -800,6 +828,12 @@ func handleLeaveServer(conn *net.TCPConn, r io.Reader) {
 		return
 	}
 
+	/*
+	for some reason the game is also checking 0x84 and 0x89:
+
+	if (((param_1 != '\0') && (param_1 != 0x84)) && (param_1 != 0x89))
+	*/
+
 	if user.JoinedServer != nil {
 		user.JoinedServer.RemovePlayer(conn)
 		user.JoinedServer = nil
@@ -808,4 +842,16 @@ func handleLeaveServer(conn *net.TCPConn, r io.Reader) {
 	} else {
 		sendResult(conn, 1, "user has not joined any server", pack.TicketId)
 	}
+}
+
+func handleCheckVersion(conn *net.TCPConn, r io.Reader) {
+	pack, err := handlePackage[packages.CheckVersion](r)
+	if err != nil {
+		log.Errorln(err)
+		return
+	}
+
+	// TODO version check
+
+	sendResult(conn, 0, "", pack.TicketId)
 }

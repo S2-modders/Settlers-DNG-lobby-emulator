@@ -17,7 +17,7 @@ var log = library.GetLogger("Main")
 func main() {
 	log.Infoln("Starting S2 DNG Lobby Server")
 
-	var runLocal = slices.Contains(os.Args, "--local")
+	runLocal := slices.Contains(os.Args, "--local")
 
 	if err := library.DepsCheck(runLocal); err != nil {
 		log.Fatalln(err)
@@ -27,7 +27,7 @@ func main() {
 	netbridge.InitBridgeController(!runLocal)
 	lobby.InitLobby()
 
-	var addr = net.TCPAddr{
+	addr := net.TCPAddr{
 		IP: net.IPv4zero,
 		Port: config.SERVER_PORT,
 	}

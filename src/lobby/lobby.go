@@ -159,7 +159,7 @@ func GetAllServers() map[*net.TCPConn]*Server {
 /* Lobby main loops */
 
 func InitLobby() {
-	go statsPrinter()
+	//go statsPrinter()
 
 	log.Infoln("Lobby initialized")
 }

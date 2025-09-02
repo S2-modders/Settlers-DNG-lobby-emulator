@@ -2,22 +2,23 @@ package library
 
 
 func CalcChecksum(data []byte) uint32 {
-	if len(data) == 0 {
-		return 0
-	}
-
 	return calculateLittleEndian(data)
 }
 
 func calculateLittleEndian(data []byte) uint32 {
 	var crc uint32 = 0
-	var unroll int = 4
-	var bytesAtOnce int = unroll * 16
 	var count int = len(data)
-	var offset int = 0
 
-	startIndex := 0
-	endIndex := (count / bytesAtOnce) * (bytesAtOnce / 4)
+	if count == 0 {
+		return 0
+	}
+
+	const unroll int = 4
+	const bytesAtOnce int = unroll * 16
+	const offset int = 0
+
+	startIndex := offset
+	endIndex := (count / bytesAtOnce) * (bytesAtOnce / unroll)
 
 	//fmt.Println(count, bytesAtOnce, count / bytesAtOnce, bytesAtOnce / 4)
 	//fmt.Println("LOOP START")
@@ -83,7 +84,7 @@ func getUint32FromDataIndex(data []byte, index int) uint32 {
 }
 
 var lookupTable = [...]uint32{
-	// note: the first number of every second row corresponds to the half-byte look-up table !
+	// note: the first number of every second row corresponds to the half-byte look-up table!
 	// slice 0
 	0x00000000, 0x77073096, 0xEE0E612C, 0x990951BA, 0x076DC419, 0x706AF48F, 0xE963A535, 0x9E6495A3,
 	0x0EDB8832, 0x79DCB8A4, 0xE0D5E91E, 0x97D2D988, 0x09B64C2B, 0x7EB17CBD, 0xE7B82D07, 0x90BF1D91,

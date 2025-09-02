@@ -72,6 +72,10 @@ func Serialize(w io.Writer, source any) error {
 			writer.WriteUint16(v)
 		case uint32:
 			writer.WriteUint32(v)
+
+		case int16:
+			writer.WriteUint16(uint16(v))
+
 		case bool:
 			if v {
 				writer.Write([]byte{1})
@@ -131,6 +135,14 @@ func Deserialize(r io.Reader, target any) error {
 				return err
 			}
 			f.SetUint(uint64(val))
+
+		case int16:
+			val, err := reader.ReadUint16()
+			if err != nil {
+				return err
+			}
+			f.SetInt(int64(int16(val)))
+
 		case bool:
 			val := make([]byte, 1)
 			if _, err := reader.Read(val); err != nil {
