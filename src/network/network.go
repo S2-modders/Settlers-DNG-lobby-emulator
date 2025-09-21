@@ -560,8 +560,6 @@ func handleAddGameServer(conn *net.TCPConn, r io.Reader) {
 	}
 
 	/*
-	TODO
-
 	RESULT codes:
 	- 0x00: OK
 	- 0x02 or 0x83: GameServer already exists
@@ -580,20 +578,30 @@ func handleAddGameServer(conn *net.TCPConn, r io.Reader) {
 
 	//time.Sleep(10 * time.Second)
 
-	ip := net.IPv4(127, 0, 0, 1)
+	/*
+	pack.Port error codes (we misuse this field for error codes)
 
-	if pack.Port == 9999 { // we misuse port 9999 as error code
-		log.Errorln("Client returned error code: failed to create bridge connector")
-		sendResult(conn, 1, "failed to create bridge connector", pack.TicketId)
-		return
-	}
-	if pack.Port == config.DefaultPort {
+	501: network bridge failed
+	502: bridge disabled and direct connect not possible
+	*/
+
+	ip := net.IPv4(127, 0, 0, 1)
+	switch (pack.Port) {
+	case 501:
+		log.Errorln("Client error: network bridge failed")
+		sendResult(conn, 0x85, "network bridge connection failed", pack.TicketId)
+
+	case 502:
+		log.Errorln("Client error: bridge disabled and no direct connect possible")
+		sendResult(conn, 0x86, "bridge disabled and no direct connect possible", pack.TicketId)
+
+	case config.DefaultPort:
 		log.Debugln("DEFAULT PORT", conn.RemoteAddr().String())
 		ip = conn.RemoteAddr().(*net.TCPAddr).IP
-	} else {
+
+	default:
+		// TODO any kind of relay server should be possible
 		// Public IP of Bridge Server
-		// being able to have multiple bridge servers to reduce latency
-		// would be great, but quite a bit of effort
 		ip = conn.LocalAddr().(*net.TCPAddr).IP
 	}
 
