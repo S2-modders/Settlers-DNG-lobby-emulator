@@ -122,15 +122,7 @@ func handleCredReq(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 
 	encoder := json.NewEncoder(w)
-	data := struct {
-		Port int
-		Username string
-		Password string
-	}{
-		Port: config.CONTROLLER_PORT,
-		Username: config.CONTROLLER_USERNAME,
-		Password: config.CONTROLLER_PASSWORD,
-	}
+	data := config.GetControllerData()
 	encoder.Encode(data)
 }
 

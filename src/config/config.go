@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"os"
 )
 
 const DEBUGGING = true
@@ -37,4 +38,30 @@ const ConfigFileName = ""
 func GetMOTD(name string) string {
 	return fmt.Sprintf(
 		MOTD, name, VersionMaj, VersionMin, Year)
+}
+
+
+type ControllerData struct {
+	Port int
+	Username string
+	Password string
+}
+
+
+func GetControllerData() *ControllerData {
+	username, ok := os.LookupEnv("CONTROLLER_USERNAME")
+	if !ok {
+		username = CONTROLLER_USERNAME
+	}
+
+	password, ok := os.LookupEnv("CONTROLLER_PASSWORD")
+	if !ok {
+		password = CONTROLLER_PASSWORD
+	}
+
+	return &ControllerData{
+		Port: CONTROLLER_PORT,
+		Username: username,
+		Password: password,
+	}
 }

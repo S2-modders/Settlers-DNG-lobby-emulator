@@ -5,6 +5,9 @@ services:
       dockerfile: docker/Dockerfile
       context: ..
     container_name: s2-lobby
+    environment:
+      - CONTROLLER_USERNAME=siedler
+      - CONTROLLER_PASSWORD=ilovesettlers
     network_mode: host
     restart: unless-stopped
     depends_on:
@@ -14,12 +17,12 @@ services:
     image: lscr.io/linuxserver/openssh-server:latest
     container_name: s2-bridge
     environment:
+      - USER_NAME=siedler
+      - USER_PASSWORD=ilovesettlers
       - PUID=1000
       - PGID=1000
       - TZ=Europe/Berlin
       - PASSWORD_ACCESS=true
-      - USER_NAME=siedler
-      - USER_PASSWORD=ilovesettlers
       - DOCKER_MODS=linuxserver/mods:openssh-server-ssh-tunnel
       - SHELL_NOLOGIN=true
     network_mode: host
