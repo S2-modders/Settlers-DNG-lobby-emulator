@@ -24,7 +24,7 @@ func main() {
 		return
 	}
 
-	netbridge.InitBridgeController(!runLocal)
+	netbridge.InitBridgeController()
 	lobby.InitLobby()
 
 	addr := net.TCPAddr{

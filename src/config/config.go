@@ -8,9 +8,14 @@ const DEBUGGING = true
 
 const DefaultPort = 5479
 const SERVER_PORT = 6800 // port of the lobby server
-//const SERVER_PORT = 6969 // port of the lobby server
 const API_PORT = 6801 // port of the HTTP API of lobby server
-const CONTROLLER_PORT = 6802 // port of FRP controller
+
+const PORT_START = 10_000
+const PORT_END   = 11_000
+
+const CONTROLLER_PORT = 2222
+const CONTROLLER_USERNAME = "siedler"
+const CONTROLLER_PASSWORD = "ilovesettlers"
 
 const Patchlevel = 11757
 //const Patchlevel = 9212

@@ -24,7 +24,7 @@ func DepsCheck(local bool) error {
         "ss",
         "grep",
         "wc",
-        "./frps",
+        //"./frps",
     }
 
     for _, d := range deps {
