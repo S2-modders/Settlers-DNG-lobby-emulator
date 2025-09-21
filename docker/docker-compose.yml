@@ -1,0 +1,26 @@
+
+services:
+  s2lobby:
+    build:
+      dockerfile: docker/Dockerfile
+      context: ..
+    container_name: s2-lobby
+    network_mode: host
+    restart: unless-stopped
+    depends_on:
+      - bridge-server
+
+  bridge-server:
+    image: lscr.io/linuxserver/openssh-server:latest
+    container_name: s2-bridge
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Berlin
+      - PASSWORD_ACCESS=true
+      - USER_NAME=siedler
+      - USER_PASSWORD=ilovesettlers
+      - DOCKER_MODS=linuxserver/mods:openssh-server-ssh-tunnel
+      - SHELL_NOLOGIN=true
+    network_mode: host
+    restart: unless-stopped
